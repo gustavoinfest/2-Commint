@@ -20,16 +20,37 @@ export function Settings({ clinicName, setClinicName }: SettingsProps) {
   const [daysAfter, setDaysAfter] = useState("1");
   const [scheduledTime, setScheduledTime] = useState("09:00");
 
+  const [importFormat, setImportFormat] = useState<string | null>(null);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
   const handleSave = () => {
     // Simulate API call
     addToast('Configurações salvas com sucesso!', 'success');
   };
 
-  const handleImport = (format: string) => {
-    addToast(`Importação de arquivo ${format} iniciada...`, 'info');
-    setTimeout(() => {
-      addToast(`Arquivo ${format} importado com sucesso!`, 'success');
-    }, 1500);
+  const handleImportClick = (format: string) => {
+    setImportFormat(format);
+    if (fileInputRef.current) {
+      fileInputRef.current.accept = format === 'XLSX' ? '.xlsx,.xls' : 
+                                   format === 'CSV' ? '.csv' : 
+                                   format === 'PDF' ? '.pdf' : 
+                                   format === 'JSON' ? '.json' : '*/*';
+      fileInputRef.current.click();
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && importFormat) {
+      addToast(`Importação do arquivo ${file.name} (${importFormat}) iniciada...`, 'info');
+      
+      // Simulate processing
+      setTimeout(() => {
+        addToast(`Arquivo ${file.name} importado com sucesso!`, 'success');
+        setImportFormat(null);
+        if (fileInputRef.current) fileInputRef.current.value = '';
+      }, 2000);
+    }
   };
 
   return (
@@ -263,9 +284,17 @@ export function Settings({ clinicName, setClinicName }: SettingsProps) {
         
         <p className="text-sm text-slate-500">Selecione o formato do arquivo para importar seus pacientes ou registros financeiros.</p>
         
+        {/* Hidden File Input */}
+        <input 
+          type="file" 
+          ref={fileInputRef}
+          onChange={handleFileChange}
+          className="hidden"
+        />
+
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           <button 
-            onClick={() => handleImport('XLSX')}
+            onClick={() => handleImportClick('XLSX')}
             className="flex flex-col items-center justify-center p-4 border border-slate-100 rounded-xl hover:bg-slate-50 hover:border-blue-200 transition-all group"
           >
             <FileSpreadsheet className="w-8 h-8 text-emerald-500 mb-2 group-hover:scale-110 transition-transform" />
@@ -273,7 +302,7 @@ export function Settings({ clinicName, setClinicName }: SettingsProps) {
           </button>
           
           <button 
-            onClick={() => handleImport('CSV')}
+            onClick={() => handleImportClick('CSV')}
             className="flex flex-col items-center justify-center p-4 border border-slate-100 rounded-xl hover:bg-slate-50 hover:border-blue-200 transition-all group"
           >
             <FileCode className="w-8 h-8 text-blue-500 mb-2 group-hover:scale-110 transition-transform" />
@@ -281,7 +310,7 @@ export function Settings({ clinicName, setClinicName }: SettingsProps) {
           </button>
           
           <button 
-            onClick={() => handleImport('PDF')}
+            onClick={() => handleImportClick('PDF')}
             className="flex flex-col items-center justify-center p-4 border border-slate-100 rounded-xl hover:bg-slate-50 hover:border-blue-200 transition-all group"
           >
             <FileText className="w-8 h-8 text-red-500 mb-2 group-hover:scale-110 transition-transform" />
@@ -289,7 +318,7 @@ export function Settings({ clinicName, setClinicName }: SettingsProps) {
           </button>
           
           <button 
-            onClick={() => handleImport('JSON')}
+            onClick={() => handleImportClick('JSON')}
             className="flex flex-col items-center justify-center p-4 border border-slate-100 rounded-xl hover:bg-slate-50 hover:border-blue-200 transition-all group"
           >
             <FileJson className="w-8 h-8 text-amber-500 mb-2 group-hover:scale-110 transition-transform" />

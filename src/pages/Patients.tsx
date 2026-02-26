@@ -1,12 +1,48 @@
-import React from 'react';
-import { Search, Filter, MoreHorizontal } from 'lucide-react';
+import React, { useState } from 'react';
+import { Search, Filter, MoreHorizontal, Edit2, Trash2, UserPlus, MessageCircle } from 'lucide-react';
+import { useToast } from '../contexts/ToastContext';
+import { PatientModal } from '../components/PatientModal';
+import { getWhatsAppLink } from '../lib/utils';
 
 export function Patients() {
-  const patients = [
+  const { addToast } = useToast();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [activeMenu, setActiveMenu] = useState<number | string | null>(null);
+  const [editingPatient, setEditingPatient] = useState<any>(null);
+  
+  const [patientsList, setPatientsList] = useState([
     { id: 1, name: 'Ana Clara Souza', email: 'ana.souza@email.com', phone: '(11) 99999-1111', lastVisit: '10/02/2024', status: 'Ativo', plan: 'Particular' },
     { id: 2, name: 'Carlos Eduardo', email: 'carlos.edu@email.com', phone: '(11) 98888-2222', lastVisit: '05/02/2024', status: 'Inativo', plan: 'Unimed' },
     { id: 3, name: 'Mariana Lima', email: 'mari.lima@email.com', phone: '(11) 97777-3333', lastVisit: '12/02/2024', status: 'Ativo', plan: 'Bradesco' },
-  ];
+    { id: 4, name: 'Ricardo Oliveira', email: 'ricardo.oli@email.com', phone: '(11) 96666-4444', lastVisit: 'Hoje', status: 'Ativo', plan: 'Particular' },
+  ]);
+
+  const handleDelete = (id: number | string) => {
+    setPatientsList(patientsList.filter(p => p.id !== id));
+    addToast('Paciente excluído com sucesso', 'success');
+    setActiveMenu(null);
+  };
+
+  const handleEdit = (patient: any) => {
+    setEditingPatient(patient);
+    setIsModalOpen(true);
+    setActiveMenu(null);
+  };
+
+  const handleSavePatient = (patientData: any) => {
+    if (editingPatient) {
+      setPatientsList(patientsList.map(p => p.id === patientData.id ? patientData : p));
+    } else {
+      setPatientsList([...patientsList, patientData]);
+    }
+    setIsModalOpen(false);
+    setEditingPatient(null);
+  };
+
+  const openNewPatientModal = () => {
+    setEditingPatient(null);
+    setIsModalOpen(true);
+  };
 
   return (
     <div className="p-8 max-w-7xl mx-auto space-y-8">
@@ -16,6 +52,13 @@ export function Patients() {
           <p className="text-slate-500 mt-1">Gerencie seus pacientes e históricos</p>
         </div>
         <div className="flex gap-3">
+          <button 
+            onClick={openNewPatientModal}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors shadow-sm shadow-blue-200"
+          >
+            <UserPlus className="w-4 h-4" />
+            Novo Paciente
+          </button>
           <div className="relative">
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
             <input 
@@ -43,7 +86,7 @@ export function Patients() {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {patients.map((patient) => (
+            {patientsList.map((patient) => (
               <tr key={patient.id} className="hover:bg-slate-50/50 transition-colors">
                 <td className="px-6 py-4">
                   <div className="font-medium text-slate-900">{patient.name}</div>
@@ -52,7 +95,21 @@ export function Patients() {
                 <td className="px-6 py-4">
                   <span className="text-sm font-medium text-slate-600">{patient.plan}</span>
                 </td>
-                <td className="px-6 py-4 text-sm text-slate-600">{patient.phone}</td>
+                <td className="px-6 py-4 text-sm text-slate-600">
+                  <div className="flex items-center gap-2">
+                    {patient.phone}
+                    <button 
+                      onClick={() => {
+                        const link = getWhatsAppLink(patient.phone, `Olá ${patient.name}, tudo bem?`);
+                        window.open(link, '_blank');
+                      }}
+                      className="p-1 text-emerald-600 hover:bg-emerald-50 rounded transition-colors"
+                      title="Conversar no WhatsApp"
+                    >
+                      <MessageCircle className="w-4 h-4" />
+                    </button>
+                  </div>
+                </td>
                 <td className="px-6 py-4 text-sm text-slate-600">{patient.lastVisit}</td>
                 <td className="px-6 py-4">
                   <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
@@ -61,16 +118,54 @@ export function Patients() {
                     {patient.status}
                   </span>
                 </td>
-                <td className="px-6 py-4 text-right">
-                  <button className="text-slate-400 hover:text-slate-600">
+                <td className="px-6 py-4 text-right relative">
+                  <button 
+                    onClick={() => setActiveMenu(activeMenu === patient.id ? null : patient.id)}
+                    className="text-slate-400 hover:text-slate-600 p-1 rounded-full hover:bg-slate-100 transition-colors"
+                  >
                     <MoreHorizontal className="w-5 h-5" />
                   </button>
+                  
+                  {activeMenu === patient.id && (
+                    <>
+                      <div 
+                        className="fixed inset-0 z-10" 
+                        onClick={() => setActiveMenu(null)}
+                      />
+                      <div className="absolute right-6 top-12 w-32 bg-white rounded-lg shadow-lg border border-slate-100 py-1 z-20 animate-in fade-in slide-in-from-top-2 duration-200">
+                        <button 
+                          onClick={() => handleEdit(patient)}
+                          className="w-full flex items-center gap-2 px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 transition-colors"
+                        >
+                          <Edit2 className="w-3.5 h-3.5" />
+                          Editar
+                        </button>
+                        <button 
+                          onClick={() => handleDelete(patient.id)}
+                          className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                          Excluir
+                        </button>
+                      </div>
+                    </>
+                  )}
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+
+      <PatientModal 
+        isOpen={isModalOpen} 
+        onClose={() => {
+          setIsModalOpen(false);
+          setEditingPatient(null);
+        }} 
+        onSave={handleSavePatient}
+        initialData={editingPatient}
+      />
     </div>
   );
 }

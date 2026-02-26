@@ -7,13 +7,23 @@ import {
   Cake, 
   Calendar, 
   Phone, 
-  Star
+  Star,
+  MessageCircle
 } from 'lucide-react';
-import { cn } from '../lib/utils';
+import { cn, getWhatsAppLink } from '../lib/utils';
 import { PatientModal } from '../components/PatientModal';
+import { useToast } from '../contexts/ToastContext';
 
 export function Dashboard() {
+  const { addToast } = useToast();
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleSendBirthdayMessage = (name: string, phone: string) => {
+    const message = `Olá ${name}, a equipe da Clínica deseja um feliz aniversário! Muita saúde e paz! 🎂🎉`;
+    const link = getWhatsAppLink(phone, message);
+    window.open(link, '_blank');
+    addToast(`Abrindo WhatsApp para ${name}...`, 'info');
+  };
 
   return (
     <div className="p-8 max-w-7xl mx-auto space-y-8">
@@ -65,28 +75,28 @@ export function Dashboard() {
           icon={Cake} 
           iconColor="text-pink-500" 
           iconBg="bg-pink-50" 
-          value="0" 
+          value="1" 
           label="Aniversariantes Hoje" 
         />
         <StatCard 
           icon={Calendar} 
           iconColor="text-blue-500" 
           iconBg="bg-blue-50" 
-          value="0" 
+          value="3" 
           label="Retornos Atrasados" 
         />
         <StatCard 
           icon={Phone} 
           iconColor="text-purple-500" 
           iconBg="bg-purple-50" 
-          value="0" 
+          value="5" 
           label="Follow-up Pendente" 
         />
         <StatCard 
           icon={Star} 
           iconColor="text-yellow-500" 
           iconBg="bg-yellow-50" 
-          value="0" 
+          value="4.9" 
           label="Avaliação Google" 
         />
       </div>
@@ -113,10 +123,30 @@ export function Dashboard() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {/* Empty state for now to match screenshot, or we can add sample data */}
-              <tr>
-                <td colSpan={5} className="px-6 py-12 text-center text-slate-400 text-sm">
-                  Nenhum lembrete ou ação pendente para hoje.
+              <tr className="hover:bg-slate-50/50 transition-colors">
+                <td className="px-6 py-4">
+                  <div className="font-medium text-slate-900">Ricardo Oliveira</div>
+                  <div className="text-xs text-slate-500">Aniversariante do dia! 🎂</div>
+                </td>
+                <td className="px-6 py-4">
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-pink-100 text-pink-800">
+                    Aniversário
+                  </span>
+                </td>
+                <td className="px-6 py-4 text-sm text-slate-600">Hoje (25/02)</td>
+                <td className="px-6 py-4">
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
+                    Aguardando Envio
+                  </span>
+                </td>
+                <td className="px-6 py-4 text-right">
+                  <button 
+                    onClick={() => handleSendBirthdayMessage('Ricardo Oliveira', '(11) 96666-4444')}
+                    className="p-2 text-emerald-600 hover:bg-emerald-50 rounded-full transition-colors group relative"
+                    title="Enviar mensagem via WhatsApp"
+                  >
+                    <MessageCircle className="w-5 h-5 fill-emerald-50 group-hover:fill-emerald-100" />
+                  </button>
                 </td>
               </tr>
             </tbody>

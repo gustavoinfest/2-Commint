@@ -41,6 +41,26 @@ export function Financial() {
     { id: '4', patientName: 'Mariana Lima', type: 'entrada', status: 'concluido', value: 250.00, date: '2024-02-18', description: 'Consulta Particular' },
   ]);
 
+  const [editingId, setEditingId] = useState<string | null>(null);
+
+  const handleValueChange = (id: string, newValue: string) => {
+    const val = parseFloat(newValue);
+    if (!isNaN(val)) {
+      setTransactionsList(transactionsList.map(t => t.id === id ? { ...t, value: val } : t));
+    }
+  };
+
+  const toggleStatus = (id: string) => {
+    setTransactionsList(transactionsList.map(t => {
+      if (t.id === id) {
+        const newStatus = t.status === 'concluido' ? 'pendente' : 'concluido';
+        addToast(`Status alterado para ${newStatus === 'concluido' ? 'Concluído' : 'Em Aberto'}`, 'info');
+        return { ...t, status: newStatus };
+      }
+      return t;
+    }));
+  };
+
   const handleLaunchTransaction = (e: React.FormEvent) => {
     e.preventDefault();
     const transaction: Transaction = {
@@ -199,16 +219,38 @@ export function Financial() {
                   </td>
                   <td className="px-6 py-4 text-sm text-slate-600">{t.date}</td>
                   <td className="px-6 py-4">
-                    <span className={cn("font-semibold", t.type === 'entrada' ? 'text-emerald-600' : 'text-red-600')}>
-                      {t.type === 'entrada' ? '+' : '-'} R$ {t.value.toFixed(2)}
-                    </span>
+                    {editingId === t.id ? (
+                      <div className="flex items-center gap-2">
+                        <span className="text-slate-400 text-sm">R$</span>
+                        <input 
+                          type="number" 
+                          step="0.01"
+                          autoFocus
+                          className="w-24 px-2 py-1 border border-blue-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm font-semibold"
+                          value={t.value}
+                          onChange={(e) => handleValueChange(t.id, e.target.value)}
+                          onBlur={() => setEditingId(null)}
+                          onKeyDown={(e) => e.key === 'Enter' && setEditingId(null)}
+                        />
+                      </div>
+                    ) : (
+                      <button 
+                        onClick={() => setEditingId(t.id)}
+                        className={cn("font-semibold hover:bg-slate-100 px-2 py-1 rounded transition-colors", t.type === 'entrada' ? 'text-emerald-600' : 'text-red-600')}
+                      >
+                        {t.type === 'entrada' ? '+' : '-'} R$ {t.value.toFixed(2)}
+                      </button>
+                    )}
                   </td>
                   <td className="px-6 py-4">
-                    <span className={cn("inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium", 
-                      t.status === 'concluido' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
-                    )}>
+                    <button 
+                      onClick={() => toggleStatus(t.id)}
+                      className={cn("inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium transition-all hover:scale-105 active:scale-95", 
+                        t.status === 'concluido' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
+                      )}
+                    >
                       {t.status === 'concluido' ? 'Concluído' : 'Em Aberto'}
-                    </span>
+                    </button>
                   </td>
                 </tr>
               ))}

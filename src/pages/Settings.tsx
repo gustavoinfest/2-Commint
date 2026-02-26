@@ -1,0 +1,302 @@
+import React, { useState } from 'react';
+import { Save, Upload, FileJson, FileSpreadsheet, FileText, FileCode, Clock, Calendar as CalendarIcon, Pill, Activity } from 'lucide-react';
+import { useToast } from '../contexts/ToastContext';
+import { cn } from '../lib/utils';
+
+interface SettingsProps {
+  clinicName: string;
+  setClinicName: (name: string) => void;
+}
+
+export function Settings({ clinicName, setClinicName }: SettingsProps) {
+  const { addToast } = useToast();
+  const [birthdayMessage, setBirthdayMessage] = useState("Olá {nome}, feliz aniversário! Desejamos muita saúde e paz.");
+  const [reminderMessage, setReminderMessage] = useState("Olá {nome}, lembrete de sua consulta amanhã às {horario}.");
+  
+  // New scheduling states
+  const [autoBirthday, setAutoBirthday] = useState(true);
+  const [birthdayTime, setBirthdayTime] = useState("09:00");
+  const [autoReminder, setAutoReminder] = useState(true);
+  const [daysAfter, setDaysAfter] = useState("1");
+  const [scheduledTime, setScheduledTime] = useState("09:00");
+
+  const handleSave = () => {
+    // Simulate API call
+    addToast('Configurações salvas com sucesso!', 'success');
+  };
+
+  const handleImport = (format: string) => {
+    addToast(`Importação de arquivo ${format} iniciada...`, 'info');
+    setTimeout(() => {
+      addToast(`Arquivo ${format} importado com sucesso!`, 'success');
+    }, 1500);
+  };
+
+  return (
+    <div className="p-8 max-w-4xl mx-auto space-y-8">
+      <div>
+        <h1 className="text-2xl font-bold text-slate-800">Configurações</h1>
+        <p className="text-slate-500 mt-1">Gerencie as mensagens automáticas, preferências e dados</p>
+      </div>
+
+      {/* Clinic Info Section */}
+      <div className="bg-white rounded-xl border border-slate-100 shadow-sm p-6 space-y-6">
+        <h2 className="text-lg font-semibold text-slate-800 border-b border-slate-100 pb-4">Informações da Clínica</h2>
+        <div className="max-w-md">
+          <label className="block text-sm font-medium text-slate-700 mb-1">Nome da Clínica</label>
+          <input 
+            type="text" 
+            value={clinicName}
+            onChange={(e) => setClinicName(e.target.value)}
+            className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Ex: Clinica Ana Emilia"
+          />
+        </div>
+      </div>
+
+      {/* Mensagens Section */}
+      <div className="bg-white rounded-xl border border-slate-100 shadow-sm p-6 space-y-6">
+        <h2 className="text-lg font-semibold text-slate-800 border-b border-slate-100 pb-4">Mensagens Automáticas</h2>
+        
+        <div className="space-y-8">
+          {/* Birthday Message Section */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <label className="block text-sm font-medium text-slate-700">Mensagem de Aniversário</label>
+                <p className="text-xs text-slate-500">Variáveis disponíveis: {'{nome}'}</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-medium text-slate-500">Enviar automaticamente</span>
+                <button 
+                  onClick={() => setAutoBirthday(!autoBirthday)}
+                  className={cn(
+                    "w-10 h-5 rounded-full transition-colors relative",
+                    autoBirthday ? "bg-blue-600" : "bg-slate-200"
+                  )}
+                >
+                  <div className={cn(
+                    "absolute top-1 w-3 h-3 bg-white rounded-full transition-all",
+                    autoBirthday ? "left-6" : "left-1"
+                  )} />
+                </button>
+              </div>
+            </div>
+            <textarea 
+              value={birthdayMessage}
+              onChange={(e) => setBirthdayMessage(e.target.value)}
+              className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[100px]"
+            />
+            {autoBirthday && (
+              <div className="flex items-center gap-4 animate-in fade-in slide-in-from-top-2 duration-200">
+                <div className="flex-1 max-w-[200px]">
+                  <label className="block text-xs font-medium text-slate-500 uppercase mb-1 flex items-center gap-2">
+                    <Clock className="w-3 h-3 text-blue-500" />
+                    Horário de Envio
+                  </label>
+                  <input 
+                    type="time" 
+                    value={birthdayTime}
+                    onChange={(e) => setBirthdayTime(e.target.value)}
+                    className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Reminder Message Section */}
+          <div className="space-y-4 pt-6 border-t border-slate-50">
+            <div className="flex items-center justify-between">
+              <div>
+                <label className="block text-sm font-medium text-slate-700">Lembrete de Consulta</label>
+                <p className="text-xs text-slate-500">Variáveis disponíveis: {'{nome}'}, {'{data}'}, {'{horario}'}</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-medium text-slate-500">Enviar automaticamente</span>
+                <button 
+                  onClick={() => setAutoReminder(!autoReminder)}
+                  className={cn(
+                    "w-10 h-5 rounded-full transition-colors relative",
+                    autoReminder ? "bg-blue-600" : "bg-slate-200"
+                  )}
+                >
+                  <div className={cn(
+                    "absolute top-1 w-3 h-3 bg-white rounded-full transition-all",
+                    autoReminder ? "left-6" : "left-1"
+                  )} />
+                </button>
+              </div>
+            </div>
+            <textarea 
+              value={reminderMessage}
+              onChange={(e) => setReminderMessage(e.target.value)}
+              className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[100px]"
+            />
+            {autoReminder && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-in fade-in slide-in-from-top-2 duration-200">
+                <div>
+                  <label className="block text-xs font-medium text-slate-500 uppercase mb-1 flex items-center gap-2">
+                    <CalendarIcon className="w-3 h-3 text-blue-500" />
+                    Dias após a consulta para envio
+                  </label>
+                  <input 
+                    type="number" 
+                    value={daysAfter}
+                    onChange={(e) => setDaysAfter(e.target.value)}
+                    className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    min="0"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-slate-500 uppercase mb-1 flex items-center gap-2">
+                    <Clock className="w-3 h-3 text-blue-500" />
+                    Horário programado para disparo
+                  </label>
+                  <input 
+                    type="time" 
+                    value={scheduledTime}
+                    onChange={(e) => setScheduledTime(e.target.value)}
+                    className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="pt-4 flex justify-end">
+          <button 
+            onClick={handleSave}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors shadow-sm shadow-blue-200"
+          >
+            <Save className="w-4 h-4" />
+            Salvar Alterações
+          </button>
+        </div>
+      </div>
+
+      {/* Specific Scheduling Section */}
+      <div className="bg-white rounded-xl border border-slate-100 shadow-sm p-6 space-y-6">
+        <h2 className="text-lg font-semibold text-slate-800 border-b border-slate-100 pb-4 flex items-center gap-2">
+          <Activity className="w-5 h-5 text-blue-500" />
+          Agendamento de Mensagem para Paciente Específico
+        </h2>
+        
+        <p className="text-sm text-slate-500">
+          Configure regras de envio baseadas na patologia, medicação ou tipo de consulta, vinculando também o nome do paciente. 
+          O sistema identificará pacientes com estas características e agendará as mensagens automaticamente após o número de dias definido.
+        </p>
+        
+        <div className="space-y-6">
+          {/* Form to add new rule */}
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-4 p-4 bg-slate-50 rounded-lg border border-slate-100">
+            <div className="md:col-span-1">
+              <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Critério</label>
+              <select className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white">
+                <option>Patologia</option>
+                <option>Medicação</option>
+                <option>Tipo de Consulta</option>
+              </select>
+            </div>
+            <div className="md:col-span-1">
+              <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Valor/Nome</label>
+              <input type="text" placeholder="Ex: Diabetes" className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm" />
+            </div>
+            <div className="md:col-span-1">
+              <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Nome do Paciente</label>
+              <input type="text" placeholder="Ex: João Silva" className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm" />
+            </div>
+            <div className="md:col-span-1">
+              <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Dias após consulta</label>
+              <input type="number" placeholder="Ex: 2" className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm" min="0" />
+            </div>
+            <div className="md:col-span-1 flex items-end">
+              <button 
+                onClick={() => addToast('Nova regra de agendamento criada!', 'success')}
+                className="w-full px-3 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+              >
+                Adicionar Regra
+              </button>
+            </div>
+          </div>
+
+          {/* List of active rules */}
+          <div className="space-y-3">
+            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Regras Ativas</h3>
+            <div className="border border-slate-100 rounded-lg divide-y divide-slate-100">
+              <div className="p-3 flex items-center justify-between hover:bg-slate-50 transition-colors">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-blue-50 rounded-lg">
+                    <Activity className="w-4 h-4 text-blue-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-slate-800">Paciente: João Silva (Patologia: Diabetes)</p>
+                    <p className="text-xs text-slate-500">Enviar mensagem de acompanhamento 2 dias após a consulta</p>
+                  </div>
+                </div>
+                <button className="text-xs text-red-500 font-medium hover:underline">Remover</button>
+              </div>
+              <div className="p-3 flex items-center justify-between hover:bg-slate-50 transition-colors">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-emerald-50 rounded-lg">
+                    <Pill className="w-4 h-4 text-emerald-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-slate-800">Paciente: Maria Oliveira (Medicação: Insulina)</p>
+                    <p className="text-xs text-slate-500">Lembrete de renovação de receita 30 dias após a consulta</p>
+                  </div>
+                </div>
+                <button className="text-xs text-red-500 font-medium hover:underline">Remover</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Import Section */}
+      <div className="bg-white rounded-xl border border-slate-100 shadow-sm p-6 space-y-6">
+        <h2 className="text-lg font-semibold text-slate-800 border-b border-slate-100 pb-4 flex items-center gap-2">
+          <Upload className="w-5 h-5" />
+          Importar Dados
+        </h2>
+        
+        <p className="text-sm text-slate-500">Selecione o formato do arquivo para importar seus pacientes ou registros financeiros.</p>
+        
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <button 
+            onClick={() => handleImport('XLSX')}
+            className="flex flex-col items-center justify-center p-4 border border-slate-100 rounded-xl hover:bg-slate-50 hover:border-blue-200 transition-all group"
+          >
+            <FileSpreadsheet className="w-8 h-8 text-emerald-500 mb-2 group-hover:scale-110 transition-transform" />
+            <span className="text-xs font-bold text-slate-600">XLSX</span>
+          </button>
+          
+          <button 
+            onClick={() => handleImport('CSV')}
+            className="flex flex-col items-center justify-center p-4 border border-slate-100 rounded-xl hover:bg-slate-50 hover:border-blue-200 transition-all group"
+          >
+            <FileCode className="w-8 h-8 text-blue-500 mb-2 group-hover:scale-110 transition-transform" />
+            <span className="text-xs font-bold text-slate-600">CSV</span>
+          </button>
+          
+          <button 
+            onClick={() => handleImport('PDF')}
+            className="flex flex-col items-center justify-center p-4 border border-slate-100 rounded-xl hover:bg-slate-50 hover:border-blue-200 transition-all group"
+          >
+            <FileText className="w-8 h-8 text-red-500 mb-2 group-hover:scale-110 transition-transform" />
+            <span className="text-xs font-bold text-slate-600">PDF</span>
+          </button>
+          
+          <button 
+            onClick={() => handleImport('JSON')}
+            className="flex flex-col items-center justify-center p-4 border border-slate-100 rounded-xl hover:bg-slate-50 hover:border-blue-200 transition-all group"
+          >
+            <FileJson className="w-8 h-8 text-amber-500 mb-2 group-hover:scale-110 transition-transform" />
+            <span className="text-xs font-bold text-slate-600">JSON</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}

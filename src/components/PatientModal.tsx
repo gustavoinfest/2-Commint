@@ -67,6 +67,24 @@ export function PatientModal({ isOpen, onClose, onSave, initialData }: PatientMo
     onClose();
   };
 
+  const formatPhoneNumber = (value: string) => {
+    // Remove all non-digits
+    const numbers = value.replace(/\D/g, '');
+    
+    // Limit to 11 digits
+    const truncated = numbers.slice(0, 11);
+    
+    // Apply mask (XX) XXXXX-XXXX
+    if (truncated.length <= 2) return truncated;
+    if (truncated.length <= 7) return `(${truncated.slice(0, 2)}) ${truncated.slice(2)}`;
+    return `(${truncated.slice(0, 2)}) ${truncated.slice(2, 7)}-${truncated.slice(7)}`;
+  };
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>, field: 'phone' | 'secondaryPhone') => {
+    const formatted = formatPhoneNumber(e.target.value);
+    setFormData({ ...formData, [field]: formatted });
+  };
+
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 backdrop-blur-sm">
       <div className="bg-white rounded-xl shadow-xl w-full max-w-lg p-6 m-4 animate-in fade-in zoom-in duration-200 overflow-y-auto max-h-[90vh]">
@@ -106,9 +124,10 @@ export function PatientModal({ isOpen, onClose, onSave, initialData }: PatientMo
                 type="tel" 
                 required
                 value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                onChange={(e) => handlePhoneChange(e, 'phone')}
                 className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" 
-                placeholder="(00) 00000-0000" 
+                placeholder="(00) 90000-0000" 
+                maxLength={15}
               />
             </div>
           </div>
@@ -174,9 +193,10 @@ export function PatientModal({ isOpen, onClose, onSave, initialData }: PatientMo
                 <input 
                   type="tel" 
                   value={formData.secondaryPhone}
-                  onChange={(e) => setFormData({ ...formData, secondaryPhone: e.target.value })}
+                  onChange={(e) => handlePhoneChange(e, 'secondaryPhone')}
                   className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" 
-                  placeholder="(00) 00000-0000" 
+                  placeholder="(00) 90000-0000" 
+                  maxLength={15}
                 />
               </div>
               <div>

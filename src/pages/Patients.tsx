@@ -7,7 +7,7 @@ import { getWhatsAppLink } from '../lib/utils';
 export function Patients() {
   const { addToast } = useToast();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [activeMenu, setActiveMenu] = useState<number | string | null>(null);
+  const [activeMenu, setActiveMenu] = useState<{ id: number | string, top: number, left: number } | null>(null);
   const [editingPatient, setEditingPatient] = useState<any>(null);
   const [patientsList, setPatientsList] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -154,42 +154,56 @@ export function Patients() {
                 </td>
                 <td className="px-6 py-4 text-right relative">
                   <button 
-                    onClick={() => setActiveMenu(activeMenu === patient.id ? null : patient.id)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      const rect = e.currentTarget.getBoundingClientRect();
+                      setActiveMenu(activeMenu?.id === patient.id ? null : { 
+                        id: patient.id, 
+                        top: rect.bottom + window.scrollY, 
+                        left: rect.left + window.scrollX - 100 // Adjust to align left
+                      });
+                    }}
                     className="text-slate-400 hover:text-slate-600 p-1 rounded-full hover:bg-slate-100 transition-colors"
                   >
                     <MoreHorizontal className="w-5 h-5" />
                   </button>
-                  
-                  {activeMenu === patient.id && (
-                    <>
-                      <div 
-                        className="fixed inset-0 z-10" 
-                        onClick={() => setActiveMenu(null)}
-                      />
-                      <div className="absolute right-6 top-12 w-32 bg-white rounded-lg shadow-lg border border-slate-100 py-1 z-20 animate-in fade-in slide-in-from-top-2 duration-200">
-                        <button 
-                          onClick={() => handleEdit(patient)}
-                          className="w-full flex items-center gap-2 px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 transition-colors"
-                        >
-                          <Edit2 className="w-3.5 h-3.5" />
-                          Editar
-                        </button>
-                        <button 
-                          onClick={() => handleDelete(patient.id)}
-                          className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                          Excluir
-                        </button>
-                      </div>
-                    </>
-                  )}
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+
+      {activeMenu && (
+        <>
+          <div 
+            className="fixed inset-0 z-40" 
+            onClick={() => setActiveMenu(null)}
+          />
+          <div 
+            className="fixed z-50 w-32 bg-white rounded-lg shadow-lg border border-slate-100 py-1 animate-in fade-in zoom-in-95 duration-100"
+            style={{ top: activeMenu.top, left: activeMenu.left }}
+          >
+            <button 
+              onClick={() => {
+                const patient = patientsList.find(p => p.id === activeMenu.id);
+                if (patient) handleEdit(patient);
+              }}
+              className="w-full flex items-center gap-2 px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 transition-colors"
+            >
+              <Edit2 className="w-3.5 h-3.5" />
+              Editar
+            </button>
+            <button 
+              onClick={() => handleDelete(activeMenu.id)}
+              className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              Excluir
+            </button>
+          </div>
+        </>
+      )}
 
       <PatientModal 
         isOpen={isModalOpen} 

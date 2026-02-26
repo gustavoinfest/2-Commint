@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Download, 
   Plus, 
@@ -17,6 +17,84 @@ import { useToast } from '../contexts/ToastContext';
 export function Dashboard() {
   const { addToast } = useToast();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [stats, setStats] = useState({
+    patients: 0,
+    actionsToday: 0,
+    birthdays: 0,
+    returns: 0,
+    followups: 0
+  });
+  const [birthdayPatient, setBirthdayPatient] = useState<any>(null);
+
+  useEffect(() => {
+    fetchStats();
+  }, []);
+
+  const fetchStats = async () => {
+    try {
+      const [patientsRes, transactionsRes] = await Promise.all([
+        fetch('/api/patients'),
+        fetch('/api/transactions')
+      ]);
+      
+      const patients = await patientsRes.json();
+      const transactions = await transactionsRes.json();
+
+      // Calculate stats
+      const today = new Date();
+      const todayStr = today.toISOString().split('T')[0];
+      const currentDayMonth = `${String(today.getDate()).padStart(2, '0')}/${String(today.getMonth() + 1).padStart(2, '0')}`;
+
+      const birthdayCount = patients.filter((p: any) => {
+        if (!p.birthDate) return false;
+        // Check if birthDate matches DD/MM
+        const [year, month, day] = p.birthDate.split('-');
+        return `${day}/${month}` === currentDayMonth; // Assuming YYYY-MM-DD format from input
+      }).length;
+
+      // Find a birthday patient for display
+      const bdayPatient = patients.find((p: any) => {
+        if (!p.birthDate) return false;
+        const [year, month, day] = p.birthDate.split('-');
+        return `${day}/${month}` === currentDayMonth;
+      });
+      setBirthdayPatient(bdayPatient);
+
+      setStats({
+        patients: patients.length,
+        actionsToday: 0, // Placeholder logic
+        birthdays: birthdayCount,
+        returns: 3, // Placeholder
+        followups: 5 // Placeholder
+      });
+
+    } catch (error) {
+      console.error('Error fetching dashboard stats:', error);
+    }
+  };
+
+  const handleBackup = async () => {
+    try {
+      addToast('Iniciando backup...', 'info');
+      const response = await fetch('/api/backup');
+      if (!response.ok) throw new Error('Backup failed');
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `clinic_backup_${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      addToast('Backup realizado com sucesso!', 'success');
+    } catch (error) {
+      console.error('Backup error:', error);
+      addToast('Erro ao realizar backup', 'error');
+    }
+  };
 
   const handleSendBirthdayMessage = (name: string, phone: string) => {
     const message = `Olá ${name}, a equipe da Clínica deseja um feliz aniversário! Muita saúde e paz! 🎂🎉`;
@@ -33,7 +111,10 @@ export function Dashboard() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <h1 className="text-3xl font-bold text-slate-900">Bom dia!</h1>
         <div className="flex items-center gap-3">
-          <button className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-lg text-slate-600 font-medium hover:bg-slate-50 transition-colors shadow-sm">
+          <button 
+            onClick={handleBackup}
+            className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-lg text-slate-600 font-medium hover:bg-slate-50 transition-colors shadow-sm"
+          >
             <Download className="w-4 h-4" />
             Backup
           </button>
@@ -54,7 +135,7 @@ export function Dashboard() {
             <Users className="w-5 h-5 text-indigo-600" />
           </div>
           <div>
-            <p className="text-xl font-bold text-slate-900">0</p>
+            <p className="text-xl font-bold text-slate-900">{stats.patients}</p>
             <p className="text-xs text-slate-500 font-medium">Pacientes</p>
           </div>
         </div>
@@ -63,7 +144,7 @@ export function Dashboard() {
             <CheckCircle2 className="w-5 h-5 text-emerald-600" />
           </div>
           <div>
-            <p className="text-xl font-bold text-slate-900">0</p>
+            <p className="text-xl font-bold text-slate-900">{stats.actionsToday}</p>
             <p className="text-xs text-slate-500 font-medium">Ações Hoje</p>
           </div>
         </div>
@@ -75,21 +156,21 @@ export function Dashboard() {
           icon={Cake} 
           iconColor="text-pink-500" 
           iconBg="bg-pink-50" 
-          value="1" 
+          value={String(stats.birthdays)}
           label="Aniversariantes Hoje" 
         />
         <StatCard 
           icon={Calendar} 
           iconColor="text-blue-500" 
           iconBg="bg-blue-50" 
-          value="3" 
+          value={String(stats.returns)}
           label="Retornos Atrasados" 
         />
         <StatCard 
           icon={Phone} 
           iconColor="text-purple-500" 
           iconBg="bg-purple-50" 
-          value="5" 
+          value={String(stats.followups)}
           label="Follow-up Pendente" 
         />
         <StatCard 
@@ -123,32 +204,40 @@ export function Dashboard() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              <tr className="hover:bg-slate-50/50 transition-colors">
-                <td className="px-6 py-4">
-                  <div className="font-medium text-slate-900">Ricardo Oliveira</div>
-                  <div className="text-xs text-slate-500">Aniversariante do dia! 🎂</div>
-                </td>
-                <td className="px-6 py-4">
-                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-pink-100 text-pink-800">
-                    Aniversário
-                  </span>
-                </td>
-                <td className="px-6 py-4 text-sm text-slate-600">Hoje (25/02)</td>
-                <td className="px-6 py-4">
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
-                    Aguardando Envio
-                  </span>
-                </td>
-                <td className="px-6 py-4 text-right">
-                  <button 
-                    onClick={() => handleSendBirthdayMessage('Ricardo Oliveira', '(11) 96666-4444')}
-                    className="p-2 text-emerald-600 hover:bg-emerald-50 rounded-full transition-colors group relative"
-                    title="Enviar mensagem via WhatsApp"
-                  >
-                    <MessageCircle className="w-5 h-5 fill-emerald-50 group-hover:fill-emerald-100" />
-                  </button>
-                </td>
-              </tr>
+              {birthdayPatient ? (
+                <tr className="hover:bg-slate-50/50 transition-colors">
+                  <td className="px-6 py-4">
+                    <div className="font-medium text-slate-900">{birthdayPatient.name}</div>
+                    <div className="text-xs text-slate-500">Aniversariante do dia! 🎂</div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-pink-100 text-pink-800">
+                      Aniversário
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-sm text-slate-600">Hoje</td>
+                  <td className="px-6 py-4">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
+                      Aguardando Envio
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-right">
+                    <button 
+                      onClick={() => handleSendBirthdayMessage(birthdayPatient.name, birthdayPatient.phone)}
+                      className="p-2 text-emerald-600 hover:bg-emerald-50 rounded-full transition-colors group relative"
+                      title="Enviar mensagem via WhatsApp"
+                    >
+                      <MessageCircle className="w-5 h-5 fill-emerald-50 group-hover:fill-emerald-100" />
+                    </button>
+                  </td>
+                </tr>
+              ) : (
+                <tr>
+                  <td colSpan={5} className="px-6 py-8 text-center text-slate-500 text-sm">
+                    Nenhum lembrete ou ação pendente para hoje.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

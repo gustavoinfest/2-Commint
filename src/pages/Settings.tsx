@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Save, Upload, FileJson, FileSpreadsheet, FileText, FileCode, Clock, Calendar as CalendarIcon, Pill, Activity } from 'lucide-react';
 import { useToast } from '../contexts/ToastContext';
 import { cn } from '../lib/utils';
@@ -23,9 +23,97 @@ export function Settings({ clinicName, setClinicName }: SettingsProps) {
   const [importFormat, setImportFormat] = useState<string | null>(null);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
-  const handleSave = () => {
-    // Simulate API call
-    addToast('Configurações salvas com sucesso!', 'success');
+  // Scheduling Rules
+  const [schedulingRules, setSchedulingRules] = useState<any[]>([]);
+  const [newRule, setNewRule] = useState({ criteria: 'Patologia', value: '', patientName: '', daysAfter: '' });
+
+  useEffect(() => {
+    fetchSettings();
+    fetchRules();
+  }, []);
+
+  const fetchSettings = async () => {
+    try {
+      const response = await fetch('/api/settings');
+      const data = await response.json();
+      if (data.clinicName) setClinicName(data.clinicName);
+      if (data.birthdayMessage) setBirthdayMessage(data.birthdayMessage);
+      if (data.reminderMessage) setReminderMessage(data.reminderMessage);
+      if (data.autoBirthday) setAutoBirthday(data.autoBirthday === 'true');
+      if (data.birthdayTime) setBirthdayTime(data.birthdayTime);
+      if (data.autoReminder) setAutoReminder(data.autoReminder === 'true');
+      if (data.daysAfter) setDaysAfter(data.daysAfter);
+      if (data.scheduledTime) setScheduledTime(data.scheduledTime);
+    } catch (error) {
+      console.error('Error fetching settings:', error);
+    }
+  };
+
+  const fetchRules = async () => {
+    try {
+      const response = await fetch('/api/scheduling-rules');
+      const data = await response.json();
+      setSchedulingRules(data);
+    } catch (error) {
+      console.error('Error fetching rules:', error);
+    }
+  };
+
+  const handleSave = async () => {
+    const settings = {
+      clinicName,
+      birthdayMessage,
+      reminderMessage,
+      autoBirthday: String(autoBirthday),
+      birthdayTime,
+      autoReminder: String(autoReminder),
+      daysAfter,
+      scheduledTime
+    };
+
+    try {
+      await fetch('/api/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(settings),
+      });
+      addToast('Configurações salvas com sucesso!', 'success');
+    } catch (error) {
+      console.error('Error saving settings:', error);
+      addToast('Erro ao salvar configurações', 'error');
+    }
+  };
+
+  const handleAddRule = async () => {
+    if (!newRule.value || !newRule.patientName || !newRule.daysAfter) {
+      addToast('Preencha todos os campos da regra', 'error');
+      return;
+    }
+
+    try {
+      await fetch('/api/scheduling-rules', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newRule),
+      });
+      fetchRules();
+      setNewRule({ criteria: 'Patologia', value: '', patientName: '', daysAfter: '' });
+      addToast('Nova regra de agendamento criada!', 'success');
+    } catch (error) {
+      console.error('Error adding rule:', error);
+      addToast('Erro ao criar regra', 'error');
+    }
+  };
+
+  const handleRemoveRule = async (id: string) => {
+    try {
+      await fetch(`/api/scheduling-rules/${id}`, { method: 'DELETE' });
+      setSchedulingRules(schedulingRules.filter(r => r.id !== id));
+      addToast('Regra removida com sucesso', 'success');
+    } catch (error) {
+      console.error('Error removing rule:', error);
+      addToast('Erro ao remover regra', 'error');
+    }
   };
 
   const handleImportClick = (format: string) => {
@@ -214,7 +302,11 @@ export function Settings({ clinicName, setClinicName }: SettingsProps) {
           <div className="grid grid-cols-1 md:grid-cols-5 gap-4 p-4 bg-slate-50 rounded-lg border border-slate-100">
             <div className="md:col-span-1">
               <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Critério</label>
-              <select className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white">
+              <select 
+                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white"
+                value={newRule.criteria}
+                onChange={(e) => setNewRule({...newRule, criteria: e.target.value})}
+              >
                 <option>Patologia</option>
                 <option>Medicação</option>
                 <option>Tipo de Consulta</option>
@@ -222,19 +314,38 @@ export function Settings({ clinicName, setClinicName }: SettingsProps) {
             </div>
             <div className="md:col-span-1">
               <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Valor/Nome</label>
-              <input type="text" placeholder="Ex: Diabetes" className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm" />
+              <input 
+                type="text" 
+                placeholder="Ex: Diabetes" 
+                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm" 
+                value={newRule.value}
+                onChange={(e) => setNewRule({...newRule, value: e.target.value})}
+              />
             </div>
             <div className="md:col-span-1">
               <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Nome do Paciente</label>
-              <input type="text" placeholder="Ex: João Silva" className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm" />
+              <input 
+                type="text" 
+                placeholder="Ex: João Silva" 
+                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm" 
+                value={newRule.patientName}
+                onChange={(e) => setNewRule({...newRule, patientName: e.target.value})}
+              />
             </div>
             <div className="md:col-span-1">
               <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Dias após consulta</label>
-              <input type="number" placeholder="Ex: 2" className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm" min="0" />
+              <input 
+                type="number" 
+                placeholder="Ex: 2" 
+                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm" 
+                min="0" 
+                value={newRule.daysAfter}
+                onChange={(e) => setNewRule({...newRule, daysAfter: e.target.value})}
+              />
             </div>
             <div className="md:col-span-1 flex items-end">
               <button 
-                onClick={() => addToast('Nova regra de agendamento criada!', 'success')}
+                onClick={handleAddRule}
                 className="w-full px-3 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
               >
                 Adicionar Regra
@@ -246,30 +357,28 @@ export function Settings({ clinicName, setClinicName }: SettingsProps) {
           <div className="space-y-3">
             <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Regras Ativas</h3>
             <div className="border border-slate-100 rounded-lg divide-y divide-slate-100">
-              <div className="p-3 flex items-center justify-between hover:bg-slate-50 transition-colors">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-blue-50 rounded-lg">
-                    <Activity className="w-4 h-4 text-blue-600" />
+              {schedulingRules.length === 0 && (
+                <div className="p-4 text-center text-sm text-slate-500">Nenhuma regra cadastrada.</div>
+              )}
+              {schedulingRules.map((rule) => (
+                <div key={rule.id} className="p-3 flex items-center justify-between hover:bg-slate-50 transition-colors">
+                  <div className="flex items-center gap-3">
+                    <div className={cn("p-2 rounded-lg", rule.criteria === 'Patologia' ? 'bg-blue-50' : 'bg-emerald-50')}>
+                      {rule.criteria === 'Patologia' ? <Activity className="w-4 h-4 text-blue-600" /> : <Pill className="w-4 h-4 text-emerald-600" />}
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-slate-800">Paciente: {rule.patientName} ({rule.criteria}: {rule.value})</p>
+                      <p className="text-xs text-slate-500">Enviar mensagem {rule.daysAfter} dias após a consulta</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm font-semibold text-slate-800">Paciente: João Silva (Patologia: Diabetes)</p>
-                    <p className="text-xs text-slate-500">Enviar mensagem de acompanhamento 2 dias após a consulta</p>
-                  </div>
+                  <button 
+                    onClick={() => handleRemoveRule(rule.id)}
+                    className="text-xs text-red-500 font-medium hover:underline"
+                  >
+                    Remover
+                  </button>
                 </div>
-                <button className="text-xs text-red-500 font-medium hover:underline">Remover</button>
-              </div>
-              <div className="p-3 flex items-center justify-between hover:bg-slate-50 transition-colors">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-emerald-50 rounded-lg">
-                    <Pill className="w-4 h-4 text-emerald-600" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-slate-800">Paciente: Maria Oliveira (Medicação: Insulina)</p>
-                    <p className="text-xs text-slate-500">Lembrete de renovação de receita 30 dias após a consulta</p>
-                  </div>
-                </div>
-                <button className="text-xs text-red-500 font-medium hover:underline">Remover</button>
-              </div>
+              ))}
             </div>
           </div>
         </div>

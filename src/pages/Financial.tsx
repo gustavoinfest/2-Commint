@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   TrendingUp, 
   TrendingDown, 
@@ -34,37 +34,74 @@ export function Financial() {
     description: 'Consulta'
   });
 
-  const [transactionsList, setTransactionsList] = useState<Transaction[]>([
-    { id: '1', patientName: 'Ana Clara Souza', type: 'entrada', status: 'concluido', value: 250.00, date: '2024-02-20', description: 'Consulta Particular' },
-    { id: '2', patientName: 'Carlos Eduardo', type: 'entrada', status: 'pendente', value: 180.00, date: '2024-02-22', description: 'Sessão de Terapia' },
-    { id: '3', patientName: 'N/A', type: 'saida', status: 'concluido', value: 1200.00, date: '2024-02-15', description: 'Aluguel Sala' },
-    { id: '4', patientName: 'Mariana Lima', type: 'entrada', status: 'concluido', value: 250.00, date: '2024-02-18', description: 'Consulta Particular' },
-  ]);
+  const [transactionsList, setTransactionsList] = useState<Transaction[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const [editingId, setEditingId] = useState<string | null>(null);
-
-  const handleValueChange = (id: string, newValue: string) => {
-    const val = parseFloat(newValue);
-    if (!isNaN(val)) {
-      setTransactionsList(transactionsList.map(t => t.id === id ? { ...t, value: val } : t));
+  const fetchTransactions = async () => {
+    try {
+      const response = await fetch('/api/transactions');
+      const data = await response.json();
+      setTransactionsList(data);
+    } catch (error) {
+      console.error('Error fetching transactions:', error);
+      addToast('Erro ao carregar transações', 'error');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const toggleStatus = (id: string) => {
-    setTransactionsList(transactionsList.map(t => {
-      if (t.id === id) {
-        const newStatus = t.status === 'concluido' ? 'pendente' : 'concluido';
-        addToast(`Status alterado para ${newStatus === 'concluido' ? 'Concluído' : 'Em Aberto'}`, 'info');
-        return { ...t, status: newStatus };
+  useEffect(() => {
+    fetchTransactions();
+  }, []);
+
+  const [editingId, setEditingId] = useState<string | null>(null);
+
+  const handleValueChange = async (id: string, newValue: string) => {
+    const val = parseFloat(newValue);
+    if (!isNaN(val)) {
+      try {
+        await fetch(`/api/transactions/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ value: val }),
+        });
+        setTransactionsList(transactionsList.map(t => t.id === id ? { ...t, value: val } : t));
+      } catch (error) {
+        console.error('Error updating transaction value:', error);
+        addToast('Erro ao atualizar valor', 'error');
       }
-      return t;
-    }));
+    }
   };
 
-  const handleLaunchTransaction = (e: React.FormEvent) => {
+  const toggleStatus = async (id: string) => {
+    const transaction = transactionsList.find(t => t.id === id);
+    if (!transaction) return;
+
+    const newStatus = transaction.status === 'concluido' ? 'pendente' : 'concluido';
+    
+    try {
+      await fetch(`/api/transactions/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      
+      setTransactionsList(transactionsList.map(t => {
+        if (t.id === id) {
+          addToast(`Status alterado para ${newStatus === 'concluido' ? 'Concluído' : 'Em Aberto'}`, 'info');
+          return { ...t, status: newStatus };
+        }
+        return t;
+      }));
+    } catch (error) {
+      console.error('Error updating transaction status:', error);
+      addToast('Erro ao atualizar status', 'error');
+    }
+  };
+
+  const handleLaunchTransaction = async (e: React.FormEvent) => {
     e.preventDefault();
-    const transaction: Transaction = {
-      id: Math.random().toString(36).substr(2, 9),
+    const transaction = {
       patientName: newTransaction.patientName,
       type: 'entrada',
       status: newTransaction.status,
@@ -73,10 +110,21 @@ export function Financial() {
       description: newTransaction.description
     };
 
-    setTransactionsList([transaction, ...transactionsList]);
-    setShowLaunchModal(false);
-    setNewTransaction({ patientName: '', value: '', status: 'pendente', description: 'Consulta' });
-    addToast('Lançamento realizado com sucesso!', 'success');
+    try {
+      await fetch('/api/transactions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(transaction),
+      });
+      
+      fetchTransactions();
+      setShowLaunchModal(false);
+      setNewTransaction({ patientName: '', value: '', status: 'pendente', description: 'Consulta' });
+      addToast('Lançamento realizado com sucesso!', 'success');
+    } catch (error) {
+      console.error('Error launching transaction:', error);
+      addToast('Erro ao lançar transação', 'error');
+    }
   };
 
   const handleGenerateReport = () => {

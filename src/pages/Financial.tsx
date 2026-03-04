@@ -35,6 +35,7 @@ export function Financial() {
   });
 
   const [transactionsList, setTransactionsList] = useState<Transaction[]>([]);
+  const [patients, setPatients] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchTransactions = async () => {
@@ -45,13 +46,26 @@ export function Financial() {
     } catch (error) {
       console.error('Error fetching transactions:', error);
       addToast('Erro ao carregar transações', 'error');
-    } finally {
-      setLoading(false);
+    }
+  };
+
+  const fetchPatients = async () => {
+    try {
+      const response = await fetch('/api/patients');
+      const data = await response.json();
+      setPatients(data);
+    } catch (error) {
+      console.error('Error fetching patients:', error);
     }
   };
 
   useEffect(() => {
-    fetchTransactions();
+    const loadData = async () => {
+      setLoading(true);
+      await Promise.all([fetchTransactions(), fetchPatients()]);
+      setLoading(false);
+    };
+    loadData();
   }, []);
 
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -135,7 +149,7 @@ export function Financial() {
     { label: 'Entradas', value: 'R$ 680,00', icon: TrendingUp, color: 'text-emerald-600', bg: 'bg-emerald-50' },
     { label: 'Saídas', value: 'R$ 1.200,00', icon: TrendingDown, color: 'text-red-600', bg: 'bg-red-50' },
     { label: 'Em Aberto', value: 'R$ 180,00', icon: Clock, color: 'text-amber-600', bg: 'bg-amber-50' },
-    { label: 'Concluído', value: 'R$ 500,00', icon: CheckCircle2, color: 'text-blue-600', bg: 'bg-blue-50' },
+    { label: 'Concluído', value: 'R$ 500,00', icon: CheckCircle2, color: 'text-emerald-600', bg: 'bg-emerald-50' },
   ];
 
   return (
@@ -148,7 +162,7 @@ export function Financial() {
         <div className="flex items-center gap-3">
           <button 
             onClick={() => setShowLaunchModal(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors shadow-sm shadow-blue-200"
+            className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 transition-colors shadow-sm shadow-emerald-200"
           >
             <TrendingUp className="w-4 h-4" />
             Lançar Consulta
@@ -188,7 +202,7 @@ export function Financial() {
             <input 
               type="number" 
               placeholder="Ex: 20"
-              className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
               value={filterDate.day}
               onChange={(e) => setFilterDate({...filterDate, day: e.target.value})}
             />
@@ -196,7 +210,7 @@ export function Financial() {
           <div>
             <label className="block text-xs font-medium text-slate-500 uppercase mb-1">Mês</label>
             <select 
-              className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
               value={filterDate.month}
               onChange={(e) => setFilterDate({...filterDate, month: e.target.value})}
             >
@@ -220,7 +234,7 @@ export function Financial() {
             <input 
               type="number" 
               placeholder="Ex: 2024"
-              className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
               value={filterDate.year}
               onChange={(e) => setFilterDate({...filterDate, year: e.target.value})}
             />
@@ -237,7 +251,7 @@ export function Financial() {
             <input 
               type="text" 
               placeholder="Buscar por paciente..." 
-              className="pl-10 pr-4 py-1.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="pl-10 pr-4 py-1.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
             />
           </div>
         </div>
@@ -274,7 +288,7 @@ export function Financial() {
                           type="number" 
                           step="0.01"
                           autoFocus
-                          className="w-24 px-2 py-1 border border-blue-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm font-semibold"
+                          className="w-24 px-2 py-1 border border-emerald-300 rounded focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm font-semibold"
                           value={t.value}
                           onChange={(e) => handleValueChange(t.id, e.target.value)}
                           onBlur={() => setEditingId(null)}
@@ -320,14 +334,19 @@ export function Financial() {
             <form onSubmit={handleLaunchTransaction} className="p-6 space-y-4">
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Paciente</label>
-                <input 
-                  type="text" 
+                <select 
                   required
-                  className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Nome do paciente"
+                  className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
                   value={newTransaction.patientName}
                   onChange={(e) => setNewTransaction({...newTransaction, patientName: e.target.value})}
-                />
+                >
+                  <option value="">Selecione um paciente</option>
+                  {patients.map(patient => (
+                    <option key={patient.id} value={patient.name}>
+                      {patient.name}
+                    </option>
+                  ))}
+                </select>
               </div>
               
               <div className="grid grid-cols-2 gap-4">
@@ -337,7 +356,7 @@ export function Financial() {
                     type="number" 
                     step="0.01"
                     required
-                    className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
                     placeholder="0,00"
                     value={newTransaction.value}
                     onChange={(e) => setNewTransaction({...newTransaction, value: e.target.value})}
@@ -346,7 +365,7 @@ export function Financial() {
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">Status</label>
                   <select 
-                    className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
                     value={newTransaction.status}
                     onChange={(e) => setNewTransaction({...newTransaction, status: e.target.value as 'concluido' | 'pendente'})}
                   >
@@ -360,7 +379,7 @@ export function Financial() {
                 <label className="block text-sm font-medium text-slate-700 mb-1">Descrição</label>
                 <input 
                   type="text" 
-                  className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   placeholder="Ex: Consulta Particular"
                   value={newTransaction.description}
                   onChange={(e) => setNewTransaction({...newTransaction, description: e.target.value})}
@@ -377,7 +396,7 @@ export function Financial() {
                 </button>
                 <button 
                   type="submit"
-                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors shadow-sm shadow-blue-200"
+                  className="flex-1 px-4 py-2 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 transition-colors shadow-sm shadow-emerald-200"
                 >
                   Confirmar Lançamento
                 </button>

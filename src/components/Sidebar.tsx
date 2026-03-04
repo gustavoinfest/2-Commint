@@ -26,7 +26,7 @@ export function Sidebar({ activePage, setPage, clinicName }: SidebarProps) {
   return (
     <div className="w-64 bg-white h-screen border-r border-gray-100 flex flex-col fixed left-0 top-0">
       <div className="p-6 flex items-center gap-2">
-        <div className="bg-blue-500 p-1.5 rounded-lg">
+        <div className="bg-emerald-500 p-1.5 rounded-lg">
           <Plus className="w-5 h-5 text-white" strokeWidth={3} />
         </div>
         <span className="text-xl font-bold text-slate-800">{clinicName}</span>
@@ -43,7 +43,7 @@ export function Sidebar({ activePage, setPage, clinicName }: SidebarProps) {
               className={cn(
                 "w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors",
                 isActive 
-                  ? "bg-blue-50 text-blue-600" 
+                  ? "bg-emerald-50 text-emerald-600" 
                   : "text-slate-500 hover:bg-slate-50 hover:text-slate-700"
               )}
             >

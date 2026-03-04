@@ -29,8 +29,22 @@ db.exec(`
     secondaryPhone TEXT,
     relationship TEXT,
     status TEXT DEFAULT 'Ativo',
-    lastVisit TEXT DEFAULT 'Novo'
+    lastVisit TEXT DEFAULT 'Novo',
+    appointmentDate TEXT,
+    attendanceStatus TEXT DEFAULT 'Pendente'
   );
+
+  // Migration: Add new columns if they don't exist
+  const tableInfo = db.prepare("PRAGMA table_info(patients)").all() as any[];
+  const hasAppointmentDate = tableInfo.some(col => col.name === 'appointmentDate');
+  const hasAttendanceStatus = tableInfo.some(col => col.name === 'attendanceStatus');
+
+  if (!hasAppointmentDate) {
+    db.prepare("ALTER TABLE patients ADD COLUMN appointmentDate TEXT").run();
+  }
+  if (!hasAttendanceStatus) {
+    db.prepare("ALTER TABLE patients ADD COLUMN attendanceStatus TEXT DEFAULT 'Pendente'").run();
+  }
 
   CREATE TABLE IF NOT EXISTS transactions (
     id TEXT PRIMARY KEY,
@@ -84,11 +98,18 @@ async function startServer() {
     res.json(patients);
   });
 
+  app.get('/api/patients/search', (req, res) => {
+    const { q } = req.query;
+    if (!q) return res.json([]);
+    const patients = db.prepare('SELECT id, name FROM patients WHERE name LIKE ? LIMIT 10').all(`%${q}%`);
+    res.json(patients);
+  });
+
   app.post('/api/patients', (req, res) => {
     const patient = req.body;
     const stmt = db.prepare(`
-      INSERT INTO patients (id, name, email, phone, birthDate, plan, pathology, medication, secondaryPhone, relationship, status, lastVisit)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO patients (id, name, email, phone, birthDate, plan, pathology, medication, secondaryPhone, relationship, status, lastVisit, appointmentDate, attendanceStatus)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
     try {
       stmt.run(
@@ -103,7 +124,9 @@ async function startServer() {
         patient.secondaryPhone,
         patient.relationship,
         patient.status || 'Ativo',
-        patient.lastVisit || 'Novo'
+        patient.lastVisit || 'Novo',
+        patient.appointmentDate || null,
+        patient.attendanceStatus || 'Pendente'
       );
       res.json({ success: true });
     } catch (error: any) {
@@ -118,7 +141,7 @@ async function startServer() {
       UPDATE patients SET 
         name = ?, email = ?, phone = ?, birthDate = ?, plan = ?, 
         pathology = ?, medication = ?, secondaryPhone = ?, relationship = ?, 
-        status = ?, lastVisit = ?
+        status = ?, lastVisit = ?, appointmentDate = ?, attendanceStatus = ?
       WHERE id = ?
     `);
     try {
@@ -134,6 +157,8 @@ async function startServer() {
         patient.relationship,
         patient.status,
         patient.lastVisit,
+        patient.appointmentDate,
+        patient.attendanceStatus,
         id
       );
       res.json({ success: true });

@@ -120,7 +120,7 @@ export function Dashboard() {
           </button>
           <button 
             onClick={() => setIsModalOpen(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors shadow-sm shadow-blue-200"
+            className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 transition-colors shadow-sm shadow-emerald-200"
           >
             <Plus className="w-4 h-4" />
             Novo Paciente
@@ -131,8 +131,8 @@ export function Dashboard() {
       {/* Small Stats */}
       <div className="flex gap-4">
         <div className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex items-center gap-3 min-w-[160px]">
-          <div className="p-2 bg-indigo-50 rounded-lg">
-            <Users className="w-5 h-5 text-indigo-600" />
+          <div className="p-2 bg-emerald-50 rounded-lg">
+            <Users className="w-5 h-5 text-emerald-600" />
           </div>
           <div>
             <p className="text-xl font-bold text-slate-900">{stats.patients}</p>
@@ -161,8 +161,8 @@ export function Dashboard() {
         />
         <StatCard 
           icon={Calendar} 
-          iconColor="text-blue-500" 
-          iconBg="bg-blue-50" 
+          iconColor="text-emerald-500" 
+          iconBg="bg-emerald-50" 
           value={String(stats.returns)}
           label="Retornos Atrasados" 
         />

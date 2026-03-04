@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Search, Filter, MoreHorizontal, Edit2, Trash2, UserPlus, MessageCircle } from 'lucide-react';
 import { useToast } from '../contexts/ToastContext';
 import { PatientModal } from '../components/PatientModal';
-import { getWhatsAppLink } from '../lib/utils';
+import { getWhatsAppLink, cn } from '../lib/utils';
 
 export function Patients() {
   const { addToast } = useToast();
@@ -73,6 +73,24 @@ export function Patients() {
     }
   };
 
+  const handleToggleAttendance = async (patient: any) => {
+    const newStatus = patient.attendanceStatus === 'Compareceu' ? 'Faltou' : 
+                     patient.attendanceStatus === 'Faltou' ? 'Pendente' : 'Compareceu';
+    
+    try {
+      await fetch(`/api/patients/${patient.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...patient, attendanceStatus: newStatus }),
+      });
+      setPatientsList(patientsList.map(p => p.id === patient.id ? { ...p, attendanceStatus: newStatus } : p));
+      addToast(`Status de presença alterado para: ${newStatus}`, 'info');
+    } catch (error) {
+      console.error('Error toggling attendance:', error);
+      addToast('Erro ao atualizar presença', 'error');
+    }
+  };
+
   const openNewPatientModal = () => {
     setEditingPatient(null);
     setIsModalOpen(true);
@@ -88,7 +106,7 @@ export function Patients() {
         <div className="flex gap-3">
           <button 
             onClick={openNewPatientModal}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors shadow-sm shadow-blue-200"
+            className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 transition-colors shadow-sm shadow-emerald-200"
           >
             <UserPlus className="w-4 h-4" />
             Novo Paciente
@@ -98,7 +116,7 @@ export function Patients() {
             <input 
               type="text" 
               placeholder="Buscar paciente..." 
-              className="pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-64"
+              className="pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 w-64"
             />
           </div>
           <button className="p-2 border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-600">
@@ -114,7 +132,8 @@ export function Patients() {
               <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Nome</th>
               <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Plano</th>
               <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Contato</th>
-              <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Última Visita</th>
+              <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Agendamento</th>
+              <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Presença</th>
               <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
               <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-right">Ações</th>
             </tr>
@@ -144,7 +163,22 @@ export function Patients() {
                     </button>
                   </div>
                 </td>
-                <td className="px-6 py-4 text-sm text-slate-600">{patient.lastVisit}</td>
+                <td className="px-6 py-4 text-sm text-slate-600">
+                  {patient.appointmentDate ? new Date(patient.appointmentDate).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }) : 'Não agendado'}
+                </td>
+                <td className="px-6 py-4">
+                  <button 
+                    onClick={() => handleToggleAttendance(patient)}
+                    className={cn(
+                      "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium transition-all hover:scale-105",
+                      patient.attendanceStatus === 'Compareceu' ? 'bg-emerald-100 text-emerald-800' : 
+                      patient.attendanceStatus === 'Faltou' ? 'bg-red-100 text-red-800' : 
+                      'bg-slate-100 text-slate-800'
+                    )}
+                  >
+                    {patient.attendanceStatus || 'Pendente'}
+                  </button>
+                </td>
                 <td className="px-6 py-4">
                   <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                     patient.status === 'Ativo' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-800'

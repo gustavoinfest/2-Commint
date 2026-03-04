@@ -14,6 +14,7 @@ if (!fs.existsSync(dataDir)) {
 }
 
 const db = new Database(path.join(dataDir, 'clinic.db'));
+db.pragma('journal_mode = WAL');
 
 // Initialize Database Tables
 db.exec(`
@@ -112,6 +113,11 @@ async function startServer() {
 
   app.post('/api/patients', (req, res) => {
     const patient = req.body;
+    
+    if (!patient.name) {
+      return res.status(400).json({ error: 'O nome do paciente é obrigatório.' });
+    }
+
     const stmt = db.prepare(`
       INSERT INTO patients (id, name, email, phone, birthDate, plan, pathology, medication, secondaryPhone, relationship, status, lastVisit, appointmentDate, attendanceStatus)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -120,14 +126,14 @@ async function startServer() {
       stmt.run(
         patient.id || Math.random().toString(36).substr(2, 9),
         patient.name,
-        patient.email,
-        patient.phone,
-        patient.birthDate,
-        patient.plan,
-        patient.pathology,
-        patient.medication,
-        patient.secondaryPhone,
-        patient.relationship,
+        patient.email || null,
+        patient.phone || null,
+        patient.birthDate || null,
+        patient.plan || 'Particular',
+        patient.pathology || null,
+        patient.medication || null,
+        patient.secondaryPhone || null,
+        patient.relationship || null,
         patient.status || 'Ativo',
         patient.lastVisit || 'Novo',
         patient.appointmentDate || null,
@@ -135,6 +141,7 @@ async function startServer() {
       );
       res.json({ success: true });
     } catch (error: any) {
+      console.error('Error creating patient:', error);
       res.status(500).json({ error: error.message });
     }
   });
@@ -142,6 +149,11 @@ async function startServer() {
   app.put('/api/patients/:id', (req, res) => {
     const { id } = req.params;
     const patient = req.body;
+
+    if (!patient.name) {
+      return res.status(400).json({ error: 'O nome do paciente é obrigatório.' });
+    }
+
     const stmt = db.prepare(`
       UPDATE patients SET 
         name = ?, email = ?, phone = ?, birthDate = ?, plan = ?, 
@@ -152,22 +164,23 @@ async function startServer() {
     try {
       stmt.run(
         patient.name,
-        patient.email,
-        patient.phone,
-        patient.birthDate,
-        patient.plan,
-        patient.pathology,
-        patient.medication,
-        patient.secondaryPhone,
-        patient.relationship,
-        patient.status,
-        patient.lastVisit,
-        patient.appointmentDate,
-        patient.attendanceStatus,
+        patient.email || null,
+        patient.phone || null,
+        patient.birthDate || null,
+        patient.plan || 'Particular',
+        patient.pathology || null,
+        patient.medication || null,
+        patient.secondaryPhone || null,
+        patient.relationship || null,
+        patient.status || 'Ativo',
+        patient.lastVisit || 'Novo',
+        patient.appointmentDate || null,
+        patient.attendanceStatus || 'Pendente',
         id
       );
       res.json({ success: true });
     } catch (error: any) {
+      console.error('Error updating patient:', error);
       res.status(500).json({ error: error.message });
     }
   });

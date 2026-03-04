@@ -46,16 +46,20 @@ export function Dashboard() {
       const currentDayMonth = `${String(today.getDate()).padStart(2, '0')}/${String(today.getMonth() + 1).padStart(2, '0')}`;
 
       const birthdayCount = patients.filter((p: any) => {
-        if (!p.birthDate) return false;
+        if (!p.birthDate || typeof p.birthDate !== 'string') return false;
         // Check if birthDate matches DD/MM
-        const [year, month, day] = p.birthDate.split('-');
-        return `${day}/${month}` === currentDayMonth; // Assuming YYYY-MM-DD format from input
+        const parts = p.birthDate.split('-');
+        if (parts.length < 3) return false;
+        const [year, month, day] = parts;
+        return `${day}/${month}` === currentDayMonth;
       }).length;
 
       // Find a birthday patient for display
       const bdayPatient = patients.find((p: any) => {
-        if (!p.birthDate) return false;
-        const [year, month, day] = p.birthDate.split('-');
+        if (!p.birthDate || typeof p.birthDate !== 'string') return false;
+        const parts = p.birthDate.split('-');
+        if (parts.length < 3) return false;
+        const [year, month, day] = parts;
         return `${day}/${month}` === currentDayMonth;
       });
       setBirthdayPatient(bdayPatient);
@@ -110,14 +114,18 @@ export function Dashboard() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(patientData),
       });
-      if (!response.ok) throw new Error('Failed to create patient');
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Erro ao criar paciente');
+      }
       
       // Refresh stats after saving
       await fetchStats();
       setIsModalOpen(false);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving patient:', error);
-      addToast('Erro ao salvar paciente', 'error');
+      addToast(error.message || 'Erro ao salvar paciente', 'error');
+      throw error; // Re-throw to prevent modal from closing in handleSubmit
     }
   };
 

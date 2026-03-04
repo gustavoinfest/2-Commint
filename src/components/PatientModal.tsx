@@ -56,18 +56,27 @@ export function PatientModal({ isOpen, onClose, onSave, initialData }: PatientMo
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (onSave) {
-      onSave({
-        ...formData,
-        id: initialData?.id || Math.random().toString(36).substr(2, 9),
-        lastVisit: initialData?.lastVisit || 'Novo',
-        status: initialData?.status || 'Ativo'
-      });
+      try {
+        await onSave({
+          ...formData,
+          id: initialData?.id || Math.random().toString(36).substr(2, 9),
+          lastVisit: initialData?.lastVisit || 'Novo',
+          status: initialData?.status || 'Ativo'
+        });
+        // Toast is now handled by the parent or here if we want to be sure
+        // But the parent handleSavePatient in Patients.tsx doesn't show success toast, 
+        // it only shows error toast. Dashboard.tsx also doesn't show success toast.
+        // Let's keep the success toast here but only if it succeeds.
+        addToast(initialData ? 'Paciente atualizado com sucesso!' : 'Paciente cadastrado com sucesso!', 'success');
+        onClose();
+      } catch (error) {
+        // Error is handled by the onSave implementation (it should throw)
+        console.error('Form submission error:', error);
+      }
     }
-    addToast(initialData ? 'Paciente atualizado com sucesso!' : 'Paciente cadastrado com sucesso!', 'success');
-    onClose();
   };
 
   const formatPhoneNumber = (value: string) => {

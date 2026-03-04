@@ -52,8 +52,11 @@ export function Financial() {
   const fetchPatients = async () => {
     try {
       const response = await fetch('/api/patients');
+      if (!response.ok) throw new Error('Failed to fetch patients');
       const data = await response.json();
-      setPatients(data);
+      if (Array.isArray(data)) {
+        setPatients(data);
+      }
     } catch (error) {
       console.error('Error fetching patients:', error);
     }

@@ -34,18 +34,6 @@ db.exec(`
     attendanceStatus TEXT DEFAULT 'Pendente'
   );
 
-  // Migration: Add new columns if they don't exist
-  const tableInfo = db.prepare("PRAGMA table_info(patients)").all() as any[];
-  const hasAppointmentDate = tableInfo.some(col => col.name === 'appointmentDate');
-  const hasAttendanceStatus = tableInfo.some(col => col.name === 'attendanceStatus');
-
-  if (!hasAppointmentDate) {
-    db.prepare("ALTER TABLE patients ADD COLUMN appointmentDate TEXT").run();
-  }
-  if (!hasAttendanceStatus) {
-    db.prepare("ALTER TABLE patients ADD COLUMN attendanceStatus TEXT DEFAULT 'Pendente'").run();
-  }
-
   CREATE TABLE IF NOT EXISTS transactions (
     id TEXT PRIMARY KEY,
     patientName TEXT,
@@ -69,6 +57,18 @@ db.exec(`
     daysAfter INTEGER
   );
 `);
+
+// Migration: Add new columns if they don't exist
+const tableInfo = db.prepare("PRAGMA table_info(patients)").all() as any[];
+const hasAppointmentDate = tableInfo.some(col => col.name === 'appointmentDate');
+const hasAttendanceStatus = tableInfo.some(col => col.name === 'attendanceStatus');
+
+if (!hasAppointmentDate) {
+  db.prepare("ALTER TABLE patients ADD COLUMN appointmentDate TEXT").run();
+}
+if (!hasAttendanceStatus) {
+  db.prepare("ALTER TABLE patients ADD COLUMN attendanceStatus TEXT DEFAULT 'Pendente'").run();
+}
 
 // Seed initial settings if empty
 const settingsCount = db.prepare('SELECT count(*) as count FROM settings').get() as { count: number };
@@ -94,8 +94,13 @@ async function startServer() {
 
   // --- Patients ---
   app.get('/api/patients', (req, res) => {
-    const patients = db.prepare('SELECT * FROM patients').all();
-    res.json(patients);
+    try {
+      const patients = db.prepare('SELECT * FROM patients').all();
+      res.json(patients);
+    } catch (error: any) {
+      console.error('Error fetching patients:', error);
+      res.status(500).json({ error: error.message });
+    }
   });
 
   app.get('/api/patients/search', (req, res) => {
@@ -179,8 +184,13 @@ async function startServer() {
 
   // --- Transactions ---
   app.get('/api/transactions', (req, res) => {
-    const transactions = db.prepare('SELECT * FROM transactions ORDER BY date DESC').all();
-    res.json(transactions);
+    try {
+      const transactions = db.prepare('SELECT * FROM transactions ORDER BY date DESC').all();
+      res.json(transactions);
+    } catch (error: any) {
+      console.error('Error fetching transactions:', error);
+      res.status(500).json({ error: error.message });
+    }
   });
 
   app.post('/api/transactions', (req, res) => {

@@ -103,9 +103,31 @@ export function Dashboard() {
     addToast(`Abrindo WhatsApp para ${name}...`, 'info');
   };
 
+  const handleSavePatient = async (patientData: any) => {
+    try {
+      const response = await fetch('/api/patients', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(patientData),
+      });
+      if (!response.ok) throw new Error('Failed to create patient');
+      
+      // Refresh stats after saving
+      await fetchStats();
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error('Error saving patient:', error);
+      addToast('Erro ao salvar paciente', 'error');
+    }
+  };
+
   return (
     <div className="p-8 max-w-7xl mx-auto space-y-8">
-      <PatientModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      <PatientModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        onSave={handleSavePatient}
+      />
 
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">

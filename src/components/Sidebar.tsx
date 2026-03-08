@@ -19,8 +19,8 @@ export function Sidebar({ activePage, setPage, clinicName }: SidebarProps) {
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'pacientes', label: 'Pacientes', icon: Users },
-    { id: 'configuracoes', label: 'Configurações', icon: Settings },
     { id: 'financeiro', label: 'Financeiro', icon: DollarSign },
+    { id: 'configuracoes', label: 'Configurações', icon: Settings },
   ];
 
   return (

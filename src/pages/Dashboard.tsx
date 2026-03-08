@@ -150,7 +150,7 @@ export function Dashboard() {
           </button>
           <button 
             onClick={() => setIsModalOpen(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 transition-colors shadow-sm shadow-emerald-200"
+            className="flex items-center gap-2 px-4 py-2 bg-sky-600 text-white rounded-lg font-medium hover:bg-sky-700 transition-colors shadow-sm shadow-sky-200"
           >
             <Plus className="w-4 h-4" />
             Novo Paciente
@@ -161,8 +161,8 @@ export function Dashboard() {
       {/* Small Stats */}
       <div className="flex gap-4">
         <div className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex items-center gap-3 min-w-[160px]">
-          <div className="p-2 bg-emerald-50 rounded-lg">
-            <Users className="w-5 h-5 text-emerald-600" />
+          <div className="p-2 bg-sky-50 rounded-lg">
+            <Users className="w-5 h-5 text-sky-600" />
           </div>
           <div>
             <p className="text-xl font-bold text-slate-900">{stats.patients}</p>
@@ -170,8 +170,8 @@ export function Dashboard() {
           </div>
         </div>
         <div className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex items-center gap-3 min-w-[160px]">
-          <div className="p-2 bg-emerald-50 rounded-lg">
-            <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+          <div className="p-2 bg-sky-50 rounded-lg">
+            <CheckCircle2 className="w-5 h-5 text-sky-600" />
           </div>
           <div>
             <p className="text-xl font-bold text-slate-900">{stats.actionsToday}</p>
@@ -191,8 +191,8 @@ export function Dashboard() {
         />
         <StatCard 
           icon={Calendar} 
-          iconColor="text-emerald-500" 
-          iconBg="bg-emerald-50" 
+          iconColor="text-sky-500" 
+          iconBg="bg-sky-50" 
           value={String(stats.returns)}
           label="Retornos Atrasados" 
         />
@@ -254,10 +254,10 @@ export function Dashboard() {
                   <td className="px-6 py-4 text-right">
                     <button 
                       onClick={() => handleSendBirthdayMessage(birthdayPatient.name, birthdayPatient.phone)}
-                      className="p-2 text-emerald-600 hover:bg-emerald-50 rounded-full transition-colors group relative"
+                      className="p-2 text-sky-600 hover:bg-sky-50 rounded-full transition-colors group relative"
                       title="Enviar mensagem via WhatsApp"
                     >
-                      <MessageCircle className="w-5 h-5 fill-emerald-50 group-hover:fill-emerald-100" />
+                      <MessageCircle className="w-5 h-5 fill-sky-50 group-hover:fill-sky-100" />
                     </button>
                   </td>
                 </tr>

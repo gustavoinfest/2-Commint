@@ -115,7 +115,7 @@ export function PatientModal({ isOpen, onClose, onSave, initialData }: PatientMo
               required
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all" 
+              className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all" 
               placeholder="Ex: João Silva" 
               autoFocus
             />
@@ -127,7 +127,7 @@ export function PatientModal({ isOpen, onClose, onSave, initialData }: PatientMo
                 type="date" 
                 value={formData.birthDate}
                 onChange={(e) => setFormData({ ...formData, birthDate: e.target.value })}
-                className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all" 
+                className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all" 
               />
             </div>
             <div>
@@ -137,7 +137,7 @@ export function PatientModal({ isOpen, onClose, onSave, initialData }: PatientMo
                 required
                 value={formData.phone}
                 onChange={(e) => handlePhoneChange(e, 'phone')}
-                className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all" 
+                className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all" 
                 placeholder="(00) 90000-0000" 
                 maxLength={15}
               />
@@ -150,7 +150,7 @@ export function PatientModal({ isOpen, onClose, onSave, initialData }: PatientMo
                 type="email" 
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all" 
+                className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all" 
                 placeholder="joao@email.com" 
               />
             </div>
@@ -160,7 +160,7 @@ export function PatientModal({ isOpen, onClose, onSave, initialData }: PatientMo
                 type="datetime-local" 
                 value={formData.appointmentDate}
                 onChange={(e) => setFormData({ ...formData, appointmentDate: e.target.value })}
-                className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all" 
+                className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all" 
               />
             </div>
           </div>
@@ -169,7 +169,7 @@ export function PatientModal({ isOpen, onClose, onSave, initialData }: PatientMo
             <select 
               value={formData.plan}
               onChange={(e) => setFormData({ ...formData, plan: e.target.value })}
-              className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all bg-white"
+              className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all bg-white"
             >
               <option value="Particular">Particular</option>
               <option value="Unimed">Unimed</option>
@@ -189,7 +189,7 @@ export function PatientModal({ isOpen, onClose, onSave, initialData }: PatientMo
                   type="text" 
                   value={formData.pathology}
                   onChange={(e) => setFormData({ ...formData, pathology: e.target.value })}
-                  className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all" 
+                  className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all" 
                   placeholder="Ex: Diabetes, Hipertensão" 
                 />
               </div>
@@ -199,7 +199,7 @@ export function PatientModal({ isOpen, onClose, onSave, initialData }: PatientMo
                   type="text" 
                   value={formData.medication}
                   onChange={(e) => setFormData({ ...formData, medication: e.target.value })}
-                  className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all" 
+                  className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all" 
                   placeholder="Ex: Insulina, Losartana" 
                 />
               </div>
@@ -215,7 +215,7 @@ export function PatientModal({ isOpen, onClose, onSave, initialData }: PatientMo
                   type="tel" 
                   value={formData.secondaryPhone}
                   onChange={(e) => handlePhoneChange(e, 'secondaryPhone')}
-                  className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all" 
+                  className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all" 
                   placeholder="(00) 90000-0000" 
                   maxLength={15}
                 />
@@ -226,7 +226,7 @@ export function PatientModal({ isOpen, onClose, onSave, initialData }: PatientMo
                   type="text" 
                   value={formData.relationship}
                   onChange={(e) => setFormData({ ...formData, relationship: e.target.value })}
-                  className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all" 
+                  className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all" 
                   placeholder="Ex: Pai, Esposa, Filho" 
                 />
               </div>
@@ -243,7 +243,7 @@ export function PatientModal({ isOpen, onClose, onSave, initialData }: PatientMo
             </button>
             <button 
               type="submit" 
-              className="px-4 py-2 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 transition-colors shadow-sm shadow-emerald-200"
+              className="px-4 py-2 bg-sky-600 text-white rounded-lg font-medium hover:bg-sky-700 transition-colors shadow-sm shadow-sky-200"
             >
               {initialData ? 'Atualizar Paciente' : 'Salvar Paciente'}
             </button>

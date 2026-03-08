@@ -124,7 +124,7 @@ export function Patients() {
         <div className="flex gap-3">
           <button 
             onClick={openNewPatientModal}
-            className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 transition-colors shadow-sm shadow-emerald-200"
+            className="flex items-center gap-2 px-4 py-2 bg-sky-600 text-white rounded-lg font-medium hover:bg-sky-700 transition-colors shadow-sm shadow-sky-200"
           >
             <UserPlus className="w-4 h-4" />
             Novo Paciente
@@ -134,7 +134,7 @@ export function Patients() {
             <input 
               type="text" 
               placeholder="Buscar paciente..." 
-              className="pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 w-64"
+              className="pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 w-64"
             />
           </div>
           <button className="p-2 border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-600">
@@ -174,7 +174,7 @@ export function Patients() {
                         const link = getWhatsAppLink(patient.phone, `Olá ${patient.name}, tudo bem?`);
                         window.open(link, '_blank');
                       }}
-                      className="p-1 text-emerald-600 hover:bg-emerald-50 rounded transition-colors"
+                      className="p-1 text-sky-600 hover:bg-sky-50 rounded transition-colors"
                       title="Conversar no WhatsApp"
                     >
                       <MessageCircle className="w-4 h-4" />
@@ -189,7 +189,7 @@ export function Patients() {
                     onClick={() => handleToggleAttendance(patient)}
                     className={cn(
                       "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium transition-all hover:scale-105",
-                      patient.attendanceStatus === 'Compareceu' ? 'bg-emerald-100 text-emerald-800' : 
+                      patient.attendanceStatus === 'Compareceu' ? 'bg-sky-100 text-sky-800' : 
                       patient.attendanceStatus === 'Faltou' ? 'bg-red-100 text-red-800' : 
                       'bg-slate-100 text-slate-800'
                     )}
@@ -199,7 +199,7 @@ export function Patients() {
                 </td>
                 <td className="px-6 py-4">
                   <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                    patient.status === 'Ativo' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-800'
+                    patient.status === 'Ativo' ? 'bg-sky-100 text-sky-800' : 'bg-slate-100 text-slate-800'
                   }`}>
                     {patient.status}
                   </span>

@@ -201,7 +201,7 @@ export function Settings({ clinicName, setClinicName }: SettingsProps) {
             type="text" 
             value={clinicName}
             onChange={(e) => setClinicName(e.target.value)}
-            className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
             placeholder="Ex: Clinica Ana Emilia"
           />
         </div>
@@ -225,7 +225,7 @@ export function Settings({ clinicName, setClinicName }: SettingsProps) {
                   onClick={() => setAutoBirthday(!autoBirthday)}
                   className={cn(
                     "w-10 h-5 rounded-full transition-colors relative",
-                    autoBirthday ? "bg-emerald-600" : "bg-slate-200"
+                    autoBirthday ? "bg-sky-600" : "bg-slate-200"
                   )}
                 >
                   <div className={cn(
@@ -238,13 +238,13 @@ export function Settings({ clinicName, setClinicName }: SettingsProps) {
             <textarea 
               value={birthdayMessage}
               onChange={(e) => setBirthdayMessage(e.target.value)}
-              className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 min-h-[100px]"
+              className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 min-h-[100px]"
             />
             {autoBirthday && (
               <div className="flex items-center gap-4 animate-in fade-in slide-in-from-top-2 duration-200">
                 <div className="flex-1 max-w-[200px]">
                   <label className="block text-xs font-medium text-slate-500 uppercase mb-1 flex items-center gap-2">
-                    <Clock className="w-3 h-3 text-emerald-500" />
+                    <Clock className="w-3 h-3 text-sky-500" />
                     Horário de Envio
                   </label>
                   <input 
@@ -271,7 +271,7 @@ export function Settings({ clinicName, setClinicName }: SettingsProps) {
                   onClick={() => setAutoReminder(!autoReminder)}
                   className={cn(
                     "w-10 h-5 rounded-full transition-colors relative",
-                    autoReminder ? "bg-emerald-600" : "bg-slate-200"
+                    autoReminder ? "bg-sky-600" : "bg-slate-200"
                   )}
                 >
                   <div className={cn(
@@ -284,13 +284,13 @@ export function Settings({ clinicName, setClinicName }: SettingsProps) {
             <textarea 
               value={reminderMessage}
               onChange={(e) => setReminderMessage(e.target.value)}
-              className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 min-h-[100px]"
+              className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 min-h-[100px]"
             />
             {autoReminder && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-in fade-in slide-in-from-top-2 duration-200">
                 <div>
                   <label className="block text-xs font-medium text-slate-500 uppercase mb-1 flex items-center gap-2">
-                    <CalendarIcon className="w-3 h-3 text-emerald-500" />
+                    <CalendarIcon className="w-3 h-3 text-sky-500" />
                     Dias após a consulta para envio
                   </label>
                   <input 
@@ -303,7 +303,7 @@ export function Settings({ clinicName, setClinicName }: SettingsProps) {
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-slate-500 uppercase mb-1 flex items-center gap-2">
-                    <Clock className="w-3 h-3 text-emerald-500" />
+                    <Clock className="w-3 h-3 text-sky-500" />
                     Horário programado para disparo
                   </label>
                   <input 
@@ -321,7 +321,7 @@ export function Settings({ clinicName, setClinicName }: SettingsProps) {
         <div className="pt-4 flex justify-end">
           <button 
             onClick={handleSave}
-            className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 transition-colors shadow-sm shadow-emerald-200"
+            className="flex items-center gap-2 px-4 py-2 bg-sky-600 text-white rounded-lg font-medium hover:bg-sky-700 transition-colors shadow-sm shadow-sky-200"
           >
             <Save className="w-4 h-4" />
             Salvar Alterações
@@ -332,7 +332,7 @@ export function Settings({ clinicName, setClinicName }: SettingsProps) {
       {/* Specific Scheduling Section */}
       <div className="bg-white rounded-xl border border-slate-100 shadow-sm p-6 space-y-6">
         <h2 className="text-lg font-semibold text-slate-800 border-b border-slate-100 pb-4 flex items-center gap-2">
-          <Activity className="w-5 h-5 text-emerald-500" />
+          <Activity className="w-5 h-5 text-sky-500" />
           Agendamento de Mensagem para Paciente Específico
         </h2>
         
@@ -413,7 +413,7 @@ export function Settings({ clinicName, setClinicName }: SettingsProps) {
             <div className="md:col-span-1 flex items-end">
               <button 
                 onClick={handleAddRule}
-                className="w-full px-3 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700 transition-colors"
+                className="w-full px-3 py-2 bg-sky-600 text-white rounded-lg text-sm font-medium hover:bg-sky-700 transition-colors"
               >
                 Adicionar Regra
               </button>
@@ -430,8 +430,8 @@ export function Settings({ clinicName, setClinicName }: SettingsProps) {
               {schedulingRules.map((rule) => (
                 <div key={rule.id} className="p-3 flex items-center justify-between hover:bg-slate-50 transition-colors">
                   <div className="flex items-center gap-3">
-                    <div className={cn("p-2 rounded-lg", rule.criteria === 'Patologia' ? 'bg-emerald-50' : 'bg-emerald-50')}>
-                      {rule.criteria === 'Patologia' ? <Activity className="w-4 h-4 text-emerald-600" /> : <Pill className="w-4 h-4 text-emerald-600" />}
+                    <div className={cn("p-2 rounded-lg", rule.criteria === 'Patologia' ? 'bg-sky-50' : 'bg-sky-50')}>
+                      {rule.criteria === 'Patologia' ? <Activity className="w-4 h-4 text-sky-600" /> : <Pill className="w-4 h-4 text-sky-600" />}
                     </div>
                     <div>
                       <p className="text-sm font-semibold text-slate-800">Paciente: {rule.patientName} ({rule.criteria}: {rule.value})</p>
@@ -471,15 +471,15 @@ export function Settings({ clinicName, setClinicName }: SettingsProps) {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           <button 
             onClick={() => handleImportClick('XLSX')}
-            className="flex flex-col items-center justify-center p-4 border border-slate-100 rounded-xl hover:bg-slate-50 hover:border-emerald-200 transition-all group"
+            className="flex flex-col items-center justify-center p-4 border border-slate-100 rounded-xl hover:bg-slate-50 hover:border-sky-200 transition-all group"
           >
-            <FileSpreadsheet className="w-8 h-8 text-emerald-500 mb-2 group-hover:scale-110 transition-transform" />
+            <FileSpreadsheet className="w-8 h-8 text-sky-500 mb-2 group-hover:scale-110 transition-transform" />
             <span className="text-xs font-bold text-slate-600">XLSX</span>
           </button>
           
           <button 
             onClick={() => handleImportClick('CSV')}
-            className="flex flex-col items-center justify-center p-4 border border-slate-100 rounded-xl hover:bg-slate-50 hover:border-emerald-200 transition-all group"
+            className="flex flex-col items-center justify-center p-4 border border-slate-100 rounded-xl hover:bg-slate-50 hover:border-sky-200 transition-all group"
           >
             <FileCode className="w-8 h-8 text-blue-500 mb-2 group-hover:scale-110 transition-transform" />
             <span className="text-xs font-bold text-slate-600">CSV</span>
@@ -487,7 +487,7 @@ export function Settings({ clinicName, setClinicName }: SettingsProps) {
           
           <button 
             onClick={() => handleImportClick('PDF')}
-            className="flex flex-col items-center justify-center p-4 border border-slate-100 rounded-xl hover:bg-slate-50 hover:border-emerald-200 transition-all group"
+            className="flex flex-col items-center justify-center p-4 border border-slate-100 rounded-xl hover:bg-slate-50 hover:border-sky-200 transition-all group"
           >
             <FileText className="w-8 h-8 text-red-500 mb-2 group-hover:scale-110 transition-transform" />
             <span className="text-xs font-bold text-slate-600">PDF</span>
@@ -495,7 +495,7 @@ export function Settings({ clinicName, setClinicName }: SettingsProps) {
           
           <button 
             onClick={() => handleImportClick('JSON')}
-            className="flex flex-col items-center justify-center p-4 border border-slate-100 rounded-xl hover:bg-slate-50 hover:border-emerald-200 transition-all group"
+            className="flex flex-col items-center justify-center p-4 border border-slate-100 rounded-xl hover:bg-slate-50 hover:border-sky-200 transition-all group"
           >
             <FileJson className="w-8 h-8 text-amber-500 mb-2 group-hover:scale-110 transition-transform" />
             <span className="text-xs font-bold text-slate-600">JSON</span>
@@ -506,7 +506,7 @@ export function Settings({ clinicName, setClinicName }: SettingsProps) {
       {/* Backup Section */}
       <div className="bg-white rounded-xl border border-slate-100 shadow-sm p-6 space-y-6">
         <h2 className="text-lg font-semibold text-slate-800 border-b border-slate-100 pb-4 flex items-center gap-2">
-          <FileJson className="w-5 h-5 text-emerald-500" />
+          <FileJson className="w-5 h-5 text-sky-500" />
           Backup e Segurança
         </h2>
         

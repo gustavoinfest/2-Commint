@@ -149,10 +149,10 @@ export function Financial() {
   };
 
   const stats = [
-    { label: 'Entradas', value: 'R$ 680,00', icon: TrendingUp, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+    { label: 'Entradas', value: 'R$ 680,00', icon: TrendingUp, color: 'text-sky-600', bg: 'bg-sky-50' },
     { label: 'Saídas', value: 'R$ 1.200,00', icon: TrendingDown, color: 'text-red-600', bg: 'bg-red-50' },
     { label: 'Em Aberto', value: 'R$ 180,00', icon: Clock, color: 'text-amber-600', bg: 'bg-amber-50' },
-    { label: 'Concluído', value: 'R$ 500,00', icon: CheckCircle2, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+    { label: 'Concluído', value: 'R$ 500,00', icon: CheckCircle2, color: 'text-sky-600', bg: 'bg-sky-50' },
   ];
 
   return (
@@ -165,7 +165,7 @@ export function Financial() {
         <div className="flex items-center gap-3">
           <button 
             onClick={() => setShowLaunchModal(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 transition-colors shadow-sm shadow-emerald-200"
+            className="flex items-center gap-2 px-4 py-2 bg-sky-600 text-white rounded-lg font-medium hover:bg-sky-700 transition-colors shadow-sm shadow-sky-200"
           >
             <TrendingUp className="w-4 h-4" />
             Lançar Consulta
@@ -205,7 +205,7 @@ export function Financial() {
             <input 
               type="number" 
               placeholder="Ex: 20"
-              className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
               value={filterDate.day}
               onChange={(e) => setFilterDate({...filterDate, day: e.target.value})}
             />
@@ -213,7 +213,7 @@ export function Financial() {
           <div>
             <label className="block text-xs font-medium text-slate-500 uppercase mb-1">Mês</label>
             <select 
-              className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
               value={filterDate.month}
               onChange={(e) => setFilterDate({...filterDate, month: e.target.value})}
             >
@@ -237,7 +237,7 @@ export function Financial() {
             <input 
               type="number" 
               placeholder="Ex: 2024"
-              className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
               value={filterDate.year}
               onChange={(e) => setFilterDate({...filterDate, year: e.target.value})}
             />
@@ -254,7 +254,7 @@ export function Financial() {
             <input 
               type="text" 
               placeholder="Buscar por paciente..." 
-              className="pl-10 pr-4 py-1.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              className="pl-10 pr-4 py-1.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
             />
           </div>
         </div>
@@ -278,7 +278,7 @@ export function Financial() {
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-2">
-                      {t.type === 'entrada' ? <TrendingUp className="w-3 h-3 text-emerald-500" /> : <TrendingDown className="w-3 h-3 text-red-500" />}
+                      {t.type === 'entrada' ? <TrendingUp className="w-3 h-3 text-sky-500" /> : <TrendingDown className="w-3 h-3 text-red-500" />}
                       <span className="text-sm text-slate-600">{t.description}</span>
                     </div>
                   </td>
@@ -291,7 +291,7 @@ export function Financial() {
                           type="number" 
                           step="0.01"
                           autoFocus
-                          className="w-24 px-2 py-1 border border-emerald-300 rounded focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm font-semibold"
+                          className="w-24 px-2 py-1 border border-sky-300 rounded focus:outline-none focus:ring-2 focus:ring-sky-500 text-sm font-semibold"
                           value={t.value}
                           onChange={(e) => handleValueChange(t.id, e.target.value)}
                           onBlur={() => setEditingId(null)}
@@ -301,7 +301,7 @@ export function Financial() {
                     ) : (
                       <button 
                         onClick={() => setEditingId(t.id)}
-                        className={cn("font-semibold hover:bg-slate-100 px-2 py-1 rounded transition-colors", t.type === 'entrada' ? 'text-emerald-600' : 'text-red-600')}
+                        className={cn("font-semibold hover:bg-slate-100 px-2 py-1 rounded transition-colors", t.type === 'entrada' ? 'text-sky-600' : 'text-red-600')}
                       >
                         {t.type === 'entrada' ? '+' : '-'} R$ {t.value.toFixed(2)}
                       </button>
@@ -311,7 +311,7 @@ export function Financial() {
                     <button 
                       onClick={() => toggleStatus(t.id)}
                       className={cn("inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium transition-all hover:scale-105 active:scale-95", 
-                        t.status === 'concluido' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
+                        t.status === 'concluido' ? 'bg-sky-100 text-sky-800' : 'bg-amber-100 text-amber-800'
                       )}
                     >
                       {t.status === 'concluido' ? 'Concluído' : 'Em Aberto'}
@@ -339,7 +339,7 @@ export function Financial() {
                 <label className="block text-sm font-medium text-slate-700 mb-1">Paciente</label>
                 <select 
                   required
-                  className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
+                  className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 bg-white"
                   value={newTransaction.patientName}
                   onChange={(e) => setNewTransaction({...newTransaction, patientName: e.target.value})}
                 >
@@ -359,7 +359,7 @@ export function Financial() {
                     type="number" 
                     step="0.01"
                     required
-                    className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
                     placeholder="0,00"
                     value={newTransaction.value}
                     onChange={(e) => setNewTransaction({...newTransaction, value: e.target.value})}
@@ -368,7 +368,7 @@ export function Financial() {
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">Status</label>
                   <select 
-                    className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
                     value={newTransaction.status}
                     onChange={(e) => setNewTransaction({...newTransaction, status: e.target.value as 'concluido' | 'pendente'})}
                   >
@@ -382,7 +382,7 @@ export function Financial() {
                 <label className="block text-sm font-medium text-slate-700 mb-1">Descrição</label>
                 <input 
                   type="text" 
-                  className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
                   placeholder="Ex: Consulta Particular"
                   value={newTransaction.description}
                   onChange={(e) => setNewTransaction({...newTransaction, description: e.target.value})}
@@ -399,7 +399,7 @@ export function Financial() {
                 </button>
                 <button 
                   type="submit"
-                  className="flex-1 px-4 py-2 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 transition-colors shadow-sm shadow-emerald-200"
+                  className="flex-1 px-4 py-2 bg-sky-600 text-white rounded-lg font-medium hover:bg-sky-700 transition-colors shadow-sm shadow-sky-200"
                 >
                   Confirmar Lançamento
                 </button>

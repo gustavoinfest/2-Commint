@@ -162,6 +162,29 @@ export function Settings({ clinicName, setClinicName }: SettingsProps) {
     }
   };
 
+  const handleBackup = async () => {
+    try {
+      addToast('Iniciando backup...', 'info');
+      const response = await fetch('/api/backup');
+      if (!response.ok) throw new Error('Backup failed');
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `clinic_backup_${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      addToast('Backup realizado com sucesso!', 'success');
+    } catch (error) {
+      console.error('Backup error:', error);
+      addToast('Erro ao realizar backup', 'error');
+    }
+  };
+
   return (
     <div className="p-8 max-w-4xl mx-auto space-y-8">
       <div>
@@ -476,6 +499,31 @@ export function Settings({ clinicName, setClinicName }: SettingsProps) {
           >
             <FileJson className="w-8 h-8 text-amber-500 mb-2 group-hover:scale-110 transition-transform" />
             <span className="text-xs font-bold text-slate-600">JSON</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Backup Section */}
+      <div className="bg-white rounded-xl border border-slate-100 shadow-sm p-6 space-y-6">
+        <h2 className="text-lg font-semibold text-slate-800 border-b border-slate-100 pb-4 flex items-center gap-2">
+          <FileJson className="w-5 h-5 text-emerald-500" />
+          Backup e Segurança
+        </h2>
+        
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div className="flex-1">
+            <p className="text-sm font-medium text-slate-700">Backup Manual do Sistema</p>
+            <p className="text-xs text-slate-500 mt-1">
+              Baixe uma cópia completa de todos os seus dados (pacientes, histórico e configurações) em formato JSON. 
+              Recomendamos realizar este procedimento semanalmente.
+            </p>
+          </div>
+          <button 
+            onClick={handleBackup}
+            className="flex items-center gap-2 px-6 py-2.5 bg-slate-800 text-white rounded-lg font-medium hover:bg-slate-900 transition-colors shadow-sm"
+          >
+            <Save className="w-4 h-4" />
+            Realizar Backup Agora
           </button>
         </div>
       </div>

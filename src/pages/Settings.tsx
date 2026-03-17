@@ -26,31 +26,36 @@ export function Settings({ clinicName, setClinicName }: SettingsProps) {
   // Scheduling Rules
   const [schedulingRules, setSchedulingRules] = useState<any[]>([]);
   const [newRule, setNewRule] = useState({ criteria: 'Patologia', value: '', patientName: '', daysAfter: '' });
-  const [patientSuggestions, setPatientSuggestions] = useState<{ id: string, name: string }[]>([]);
-  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [allPatients, setAllPatients] = useState<any[]>([]);
 
   useEffect(() => {
     fetchSettings();
     fetchRules();
-
-    const handleClickOutside = () => setShowSuggestions(false);
-    window.addEventListener('click', handleClickOutside);
-    return () => window.removeEventListener('click', handleClickOutside);
+    fetchAllPatients();
   }, []);
 
-  const searchPatients = async (query: string) => {
-    if (query.length < 2) {
-      setPatientSuggestions([]);
-      return;
-    }
+  const fetchAllPatients = async () => {
     try {
-      const response = await fetch(`/api/patients/search?q=${encodeURIComponent(query)}`);
+      const response = await fetch('/api/patients');
       const data = await response.json();
-      setPatientSuggestions(data);
-      setShowSuggestions(true);
+      setAllPatients(data);
     } catch (error) {
-      console.error('Error searching patients:', error);
+      console.error('Error fetching all patients:', error);
     }
+  };
+
+  const getCriteriaOptions = () => {
+    const options = new Set<string>();
+    allPatients.forEach(p => {
+      if (newRule.criteria === 'Patologia' && p.pathology) {
+        p.pathology.split(',').forEach((val: string) => options.add(val.trim()));
+      } else if (newRule.criteria === 'Medicação' && p.medication) {
+        p.medication.split(',').forEach((val: string) => options.add(val.trim()));
+      } else if (newRule.criteria === 'Tipo de Consulta' && p.plan) {
+        options.add(p.plan.trim());
+      }
+    });
+    return Array.from(options).filter(Boolean).sort();
   };
 
   const fetchSettings = async () => {
@@ -358,46 +363,29 @@ export function Settings({ clinicName, setClinicName }: SettingsProps) {
             </div>
             <div className="md:col-span-1">
               <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Valor/Nome</label>
-              <input 
-                type="text" 
-                placeholder="Ex: Diabetes" 
-                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm" 
+              <select 
+                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white" 
                 value={newRule.value}
                 onChange={(e) => setNewRule({...newRule, value: e.target.value})}
-              />
+              >
+                <option value="">Selecione...</option>
+                {getCriteriaOptions().map((opt, i) => (
+                  <option key={i} value={opt}>{opt}</option>
+                ))}
+              </select>
             </div>
             <div className="md:col-span-1">
               <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Nome do Paciente</label>
-              <div className="relative" onClick={(e) => e.stopPropagation()}>
-                <input 
-                  type="text" 
-                  placeholder="Ex: João Silva" 
-                  className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm" 
-                  value={newRule.patientName}
-                  onChange={(e) => {
-                    setNewRule({...newRule, patientName: e.target.value});
-                    searchPatients(e.target.value);
-                  }}
-                  onFocus={() => setShowSuggestions(true)}
-                />
-                {showSuggestions && patientSuggestions.length > 0 && (
-                  <div className="absolute z-10 w-full mt-1 bg-white border border-slate-200 rounded-lg shadow-lg max-h-40 overflow-y-auto">
-                    {patientSuggestions.map((p) => (
-                      <button
-                        key={p.id}
-                        type="button"
-                        className="w-full text-left px-3 py-2 text-sm hover:bg-slate-50 transition-colors"
-                        onClick={() => {
-                          setNewRule({ ...newRule, patientName: p.name });
-                          setShowSuggestions(false);
-                        }}
-                      >
-                        {p.name}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
+              <select 
+                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white" 
+                value={newRule.patientName}
+                onChange={(e) => setNewRule({...newRule, patientName: e.target.value})}
+              >
+                <option value="">Selecione...</option>
+                {allPatients.map(p => p.name).sort().map((name, i) => (
+                  <option key={i} value={name}>{name}</option>
+                ))}
+              </select>
             </div>
             <div className="md:col-span-1">
               <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Dias após consulta</label>

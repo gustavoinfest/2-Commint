@@ -37,6 +37,11 @@ export function Settings({ clinicName, setClinicName }: SettingsProps) {
   const fetchAllPatients = async () => {
     try {
       const response = await fetch('/api/patients');
+      if (!response.ok) {
+        const text = await response.text();
+        console.error('API Error:', response.status, text);
+        return;
+      }
       const data = await response.json();
       setAllPatients(data);
     } catch (error) {

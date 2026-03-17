@@ -92,9 +92,13 @@ async function startServer() {
   app.use(express.json());
 
   // API Routes
+  app.get('/api/health', (req, res) => {
+    res.json({ status: 'ok', timestamp: new Date().toISOString() });
+  });
 
   // --- Patients ---
   app.get('/api/patients', (req, res) => {
+    console.log('GET /api/patients requested');
     try {
       const patients = db.prepare('SELECT * FROM patients').all();
       res.json(patients);
@@ -337,6 +341,11 @@ async function startServer() {
     }
   });
 
+  // 404 for API routes - prevent falling through to SPA fallback
+  app.all('/api/*', (req, res) => {
+    res.status(404).json({ error: `API route ${req.method} ${req.url} not found` });
+  });
+
   // Vite Middleware
   if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({
@@ -345,8 +354,13 @@ async function startServer() {
     });
     app.use(vite.middlewares);
   } else {
-    // Serve static files in production (if needed)
-    app.use(express.static(path.join(__dirname, 'dist')));
+    const distPath = path.join(__dirname, 'dist');
+    app.use(express.static(distPath));
+    
+    // SPA Fallback for production
+    app.get('*', (req, res) => {
+      res.sendFile(path.join(distPath, 'index.html'));
+    });
   }
 
   app.listen(PORT, '0.0.0.0', () => {
